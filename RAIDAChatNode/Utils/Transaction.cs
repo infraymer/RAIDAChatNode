@@ -6,12 +6,15 @@ using RAIDAChatNode.Model.Entity;
 using RAIDAChatNode.Model;
 using Microsoft.EntityFrameworkCore;
 using System.Data.SqlClient;
+using System.Text;
+using SQLitePCL;
+using Microsoft.Data.Sqlite;
 
 namespace RAIDAChatNode.Utils
 {
     internal static class Transaction
     {
-        public static void saveTransaction(Guid transactionId, String tableName, String rowId, Members owner)
+        public static void saveTransaction(RaidaContext db, Guid transactionId, String tableName, String rowId, Members owner)
         {
             const double DiffRoll = 60; //How long seconds rollback access 
             Int64 rollback = DateTimeOffset.Now.AddSeconds(DiffRoll).ToUnixTimeSeconds();
@@ -21,31 +24,32 @@ namespace RAIDAChatNode.Utils
                 tableName = tableName,
                 tableRowId = rowId,
                 rollbackTime = rollback,
-                ownerId = owner
+                owner = owner
             };
-
-            using (var db = new RaidaContext())
-            {
-                db.Transactions.Add(newTransaction);
-                db.SaveChanges();
-            }
+            db.Transactions.Add(newTransaction);
         }
 
         public static void rollbackTransaction(Guid transactionId, Members owner)
         {
-            String sqlPattern = @"DELETE FROM [{0}] WHERE {1} = @Param"; //0 - TableName, 1 - id column, 2 - remove id
+            String sqlPattern = @"DELETE FROM {0} WHERE {1} = @Param"; //0 - TableName, 1 - id column, 2 - remove id
             long dateNow = DateTimeOffset.Now.ToUnixTimeSeconds();
 
             using (var db = new RaidaContext())
             {
-                if (db.Transactions.Any(it => it.transactionId == transactionId && it.ownerId == owner && it.rollbackTime > dateNow))
+                if (db.Transactions.Any(it => it.transactionId == transactionId && it.owner == owner && it.rollbackTime > dateNow))
                 {
-                    List<Transactions> trans = db.Transactions.Where(it => it.transactionId == transactionId && it.ownerId == owner && it.rollbackTime > dateNow).ToList();
+                    List<Transactions> trans = db.Transactions.Where(it => it.transactionId == transactionId && it.owner == owner && it.rollbackTime > dateNow).ToList();
                     trans.ForEach(delegate (Transactions t)
                     {
                         String tablName = t.tableName.Trim();
                         String sql = String.Format(sqlPattern, tablName, TABLE_NAME.ColumnId[tablName]);
-                        db.Database.ExecuteSqlCommand(sql, new SqlParameter("Param", t.tableRowId.Trim()));
+                        try
+                        {
+                            db.Database.ExecuteSqlCommand(sql, new SqlParameter("Param", Guid.Parse(t.tableRowId.Trim()))); //НЕ РАБОТАЕТ
+                        }catch(Exception e)
+                        {
+                            Console.WriteLine(e.Message);
+                        }
                     });
                     db.SaveChanges();
                 }
@@ -76,42 +80,24 @@ namespace RAIDAChatNode.Utils
         /// <summary>
         /// Remove all message above limit
         /// </summary>
-        /// <param name="ownerPrivate">Owner message id</param>
-        /// <param name="toPublic">Recipient id</param>
-        /// <param name="group">Group on not group</param>
-        public static void removeMessageAboveLimit(Guid ownerPrivate, Guid toPublic, String group)
+        /// <param name="group">Check dialog</param>
+        public static void removeMessageAboveLimit(Groups group)
         {
-          /*  const int limit = 50;
-            List<Shares> extra;
+            const int limit = 100;
+            List<Shares> extra = group.Shares.ToList();
 
             using (var db = new RaidaContext())
-            {
-                if (Boolean.Parse(group))
-                {
-                    extra = db.Shares.Where(it => it.self_one_or_group.Equals(group) && it.to_public == toPublic).ToList();
-                }
-                else
-                {
-                    Guid ownerPublic = db.members.Where(it => it.private_id == ownerPrivate).FirstOrDefault().public_id;
-                    Guid toPrivate = db.members.Where(it => it.public_id == toPublic).FirstOrDefault().private_id;
-
-                    extra = db.shares.Where(it => (it.self_one_or_group.Equals(group) && (
-                                                                                            (it.to_public == toPublic && it.owner_private == ownerPrivate) ||
-                                                                                            (it.to_public == ownerPublic && it.owner_private == toPrivate)
-                                                                                        ))).ToList();
-                }
-
+            { 
                 extra.OrderByDescending(it => it.sending_date)
                     .Skip(limit)
                     .ToList()
-                    .ForEach(delegate (shares s)
+                    .ForEach(delegate (Shares s)
                     {
-                        db.content_over_8000.Remove(db.content_over_8000.Where(it => it.shar_id == s.id).FirstOrDefault());
-                        db.shares.Remove(s);
+                        db.Shares.Remove(s);
                     });
 
                 db.SaveChanges();
-            }*/
+            }
         }
     }
 }

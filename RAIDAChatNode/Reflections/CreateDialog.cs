@@ -48,10 +48,14 @@ namespace RAIDAChatNode.Reflections
                     owner = owner,
                     photo_fragment = "",
                     one_to_one = info.oneToOne,
-                    allow_or_deny = "allow"
+                    privated = false
                 };
 
-                int newId = db.MemberInGroup.OrderByDescending(it => it.Id).First().Id + 1;
+                int newId = 0;
+                if ( db.MemberInGroup.Count() > 0 ){
+                    newId = db.MemberInGroup.OrderByDescending(it => it.Id).FirstOrDefault().Id + 1;
+                }
+                
 
                 if (info.oneToOne)
                 {
@@ -60,7 +64,7 @@ namespace RAIDAChatNode.Reflections
                         group.group_name_part = "OneToOne";
                         Members rec = db.Members.First(it => it.login.Equals(info.name.Trim().ToLower()));
 
-                        if (!db.MemberInGroup.Any(it => it.member == owner && db.MemberInGroup.Any(mg => mg.member == rec && it.group == mg.group)))
+                        if (!db.MemberInGroup.Any(it => it.member == owner && db.MemberInGroup.Any(mg => mg.member == rec && it.group == mg.group && mg.group.one_to_one)))
                         {
 
                             MemberInGroup mg1 = new MemberInGroup
@@ -71,7 +75,7 @@ namespace RAIDAChatNode.Reflections
                             };
                             db.MemberInGroup.Add(mg1);
 
-                            //Transaction.saveTransaction(info.transactionId, Transaction.TABLE_NAME.MEMBERS_IN_GROUP, newItem.id.ToString(), owner);
+                            Transaction.saveTransaction(db, info.transactionId, Transaction.TABLE_NAME.MEMBERS_IN_GROUP, mg1.Id.ToString(), owner);
 
                             newId++;
                             //rez.usersId.Add(info.login); Придумать ответ пользователю, которого добавили
@@ -101,13 +105,18 @@ namespace RAIDAChatNode.Reflections
                     group = group,
                     member = owner
                 };
-                db.MemberInGroup.Add(OwnerInMg);
-                    
-                db.SaveChanges();
+                db.MemberInGroup.Add(OwnerInMg);           
 
-
-                //Transaction.saveTransaction(info.transactionId, Transaction.TABLE_NAME.GROUPS, info.publicId.ToString(), owner);
-                //Transaction.saveTransaction(info.transactionId, Transaction.TABLE_NAME.MEMBERS_IN_GROUP, newItem.id.ToString(), owner);
+                Transaction.saveTransaction(db, info.transactionId, Transaction.TABLE_NAME.GROUPS, info.publicId.ToString(), owner);
+                Transaction.saveTransaction(db, info.transactionId, Transaction.TABLE_NAME.MEMBERS_IN_GROUP, OwnerInMg.Id.ToString(), owner);
+                try {
+                    db.SaveChanges();
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+                
             }
             output.data = new { id = info.publicId, info.name };
             rez.msgForOwner = output;

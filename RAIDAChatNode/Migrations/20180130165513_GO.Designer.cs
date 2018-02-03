@@ -11,8 +11,8 @@ using System;
 namespace RAIDAChatNode.Migrations
 {
     [DbContext(typeof(RaidaContext))]
-    [Migration("20180128112936_First")]
-    partial class First
+    [Migration("20180130165513_GO")]
+    partial class GO
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -25,8 +25,6 @@ namespace RAIDAChatNode.Migrations
                     b.Property<Guid>("group_id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("allow_or_deny");
-
                     b.Property<string>("group_name_part");
 
                     b.Property<bool>("one_to_one");
@@ -36,6 +34,8 @@ namespace RAIDAChatNode.Migrations
                     b.Property<Guid?>("ownerprivate_id");
 
                     b.Property<string>("photo_fragment");
+
+                    b.Property<bool>("privated");
 
                     b.HasKey("group_id");
 
@@ -66,8 +66,6 @@ namespace RAIDAChatNode.Migrations
                     b.Property<Guid>("private_id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("away_busy_ready");
-
                     b.Property<string>("description_fragment");
 
                     b.Property<int>("kb_bandwidth_used");
@@ -77,6 +75,8 @@ namespace RAIDAChatNode.Migrations
                     b.Property<string>("login");
 
                     b.Property<string>("nick_name");
+
+                    b.Property<bool>("online");
 
                     b.Property<Guid?>("organizationprivate_id");
 
@@ -126,8 +126,6 @@ namespace RAIDAChatNode.Migrations
 
                     b.Property<int>("kb_size");
 
-                    b.Property<Guid?>("organizationprivate_id");
-
                     b.Property<Guid?>("ownerprivate_id");
 
                     b.Property<long>("sending_date");
@@ -137,8 +135,6 @@ namespace RAIDAChatNode.Migrations
                     b.Property<int>("total_fragment");
 
                     b.HasKey("id");
-
-                    b.HasIndex("organizationprivate_id");
 
                     b.HasIndex("ownerprivate_id");
 
@@ -152,7 +148,7 @@ namespace RAIDAChatNode.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<Guid?>("ownerIdprivate_id");
+                    b.Property<Guid?>("ownerprivate_id");
 
                     b.Property<long>("rollbackTime");
 
@@ -164,7 +160,7 @@ namespace RAIDAChatNode.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ownerIdprivate_id");
+                    b.HasIndex("ownerprivate_id");
 
                     b.ToTable("Transactions");
                 });
@@ -209,24 +205,20 @@ namespace RAIDAChatNode.Migrations
 
             modelBuilder.Entity("RAIDAChatNode.Model.Entity.Shares", b =>
                 {
-                    b.HasOne("RAIDAChatNode.Model.Entity.Organizations", "organization")
-                        .WithMany()
-                        .HasForeignKey("organizationprivate_id");
-
                     b.HasOne("RAIDAChatNode.Model.Entity.Members", "owner")
                         .WithMany()
                         .HasForeignKey("ownerprivate_id");
 
                     b.HasOne("RAIDAChatNode.Model.Entity.Groups", "to_group")
-                        .WithMany()
+                        .WithMany("Shares")
                         .HasForeignKey("to_groupgroup_id");
                 });
 
             modelBuilder.Entity("RAIDAChatNode.Model.Entity.Transactions", b =>
                 {
-                    b.HasOne("RAIDAChatNode.Model.Entity.Members", "ownerId")
-                        .WithMany()
-                        .HasForeignKey("ownerIdprivate_id");
+                    b.HasOne("RAIDAChatNode.Model.Entity.Members", "owner")
+                        .WithMany("Transactions")
+                        .HasForeignKey("ownerprivate_id");
                 });
 #pragma warning restore 612, 618
         }

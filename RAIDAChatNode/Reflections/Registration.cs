@@ -36,7 +36,6 @@ namespace RAIDAChatNode.Reflections
 
             using (var db = new RaidaContext())
             {
-
                 if(db.Members.Any(it => it.login.Equals(info.login.Trim(), StringComparison.CurrentCultureIgnoreCase)))
                 {
                     output.success = false;
@@ -45,24 +44,30 @@ namespace RAIDAChatNode.Reflections
                 else
                 {
                     Guid privateId = Guid.NewGuid();
+                    while (db.Members.Any(it => it.private_id == privateId))
+                    {
+                        privateId = Guid.NewGuid();
+                    }
+
                     Members member = new Members
                     {
                         private_id = privateId,
                         login = info.login.Trim().ToLower(),
                         pass = info.password,
                         nick_name = info.nickName,
-                        last_use = 0,
+                        last_use = DateTimeOffset.Now.ToUnixTimeSeconds(),
                         description_fragment = "",
                         photo_fragment = new byte[5],
                         kb_bandwidth_used = 0,
-                        away_busy_ready = "ready"
+                        online = false,
                     };
                     db.Members.Add(member);
-                    db.SaveChanges();
+                    Transaction.saveTransaction(db, info.transactionId, Transaction.TABLE_NAME.MEMBERS, privateId.ToString(), member);
 
-                    //    Transaction.saveTransaction(info.transactionId, Transaction.TABLE_NAME.MEMBERS, privateId.ToString(), privateId);
+                    db.SaveChanges();
                 }
             }
+            
             rez.msgForOwner = output;
             return rez;
         }

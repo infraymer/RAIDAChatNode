@@ -19,6 +19,8 @@ namespace RAIDAChatNode.Reflections
             }
           */
 
+
+         //Замутить обновление статуса онлайн-офлайн
         public AuthSocketInfo Execute(object data)
         {
             AuthSocketInfo output = new AuthSocketInfo();
@@ -39,6 +41,10 @@ namespace RAIDAChatNode.Reflections
                         output.login = user.login;
                         output.nickName = user.nick_name;
                         output.password = info.password;
+
+                        user.online = true;
+                        user.last_use = DateTimeOffset.Now.ToUnixTimeSeconds();
+                        db.SaveChanges();
                     }
                     else
                     {

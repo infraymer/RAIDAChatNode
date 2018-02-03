@@ -15,14 +15,16 @@ namespace RAIDAChatNode.Model.Entity
         public string description_fragment { get; set; }
         public byte[] photo_fragment { get; set; }
         public int kb_bandwidth_used { get; set; }
-        public string away_busy_ready { get; set; }
+        public bool online { get; set; }
 
         public virtual Organizations organization { get; set; }
         public virtual ICollection<MemberInGroup> MemberInGroup { get; set; }
+        public virtual ICollection<Transactions> Transactions { get; set; }
 
         public Members()
         {
             MemberInGroup = new List<MemberInGroup>();
+            Transactions = new List<Transactions>();
         }
 
     }

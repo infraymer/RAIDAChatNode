@@ -5,6 +5,8 @@ using System.Linq;
 using Newtonsoft.Json;
 using System;
 using RAIDAChatNode.Reflections;
+using RAIDAChatNode.Model;
+using RAIDAChatNode.Model.Entity;
 
 namespace RAIDAChatNode.SocketService
 {
@@ -17,9 +19,18 @@ namespace RAIDAChatNode.SocketService
         {
             if (mClients.Any(it => it.client == client))
             {
-                mClients.Remove(mClients.First(it => it.client == client));
+                AuthSocketInfo cl = mClients.First(it => it.client == client);
+                using (var db = new RaidaContext())
+                {
+                    Members user = db.Members.First(it => it.login.Equals(cl.login));
+                    user.online = false;
+                    user.last_use = DateTimeOffset.Now.ToUnixTimeSeconds();
+                    db.SaveChanges();
+                    //организовать отправку остальным клиентом
+                }
+
+                mClients.Remove(cl);
             }
-            //base.OnClientClosed(client);
         }
 
         
@@ -61,8 +72,6 @@ namespace RAIDAChatNode.SocketService
             Type findClass = Type.GetType($"RAIDAChatNode.Reflections.{inputObject.execFun}", false, true);
             if (findClass != null)
             {
-                Console.WriteLine($"{findClass.ToString()} ; {(typeof(Authorization)).ToString()}");
-
                 if (findClass.Equals(typeof(Authorization)))
                 {
                     AuthSocketInfo info = new Authorization().Execute(inputObject.data);
@@ -71,6 +80,8 @@ namespace RAIDAChatNode.SocketService
                         info.client = fromClient;
                         mClients.Add(info);
                         outputSocket = new OutputSocketMessage(inputObject.execFun, true, "", new { info.nickName });
+
+                        //Организовать отправку остальным пользователям о подключении клиента
 
                         Console.WriteLine($"{JsonConvert.SerializeObject(outputSocket)}");
                         SendMessage(fromClient, outputSocket);
@@ -99,7 +110,7 @@ namespace RAIDAChatNode.SocketService
 
                         if (response.msgForOwner.success)
                         {
-                            Action<AuthSocketInfo> action = delegate (AuthSocketInfo s) { SendMessage(s.client, response.msgForOther); };
+                            Action<AuthSocketInfo> action = delegate (AuthSocketInfo s) { SendMessage(s.client, response.msgForOther); Console.WriteLine($"sendMessage for {s.login}"); };
                             mClients.Where(it => response.forUserLogin.Equals(it.login)).ToList().ForEach(action);
                         }  
                     }

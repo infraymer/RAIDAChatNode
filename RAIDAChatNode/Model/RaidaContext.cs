@@ -31,6 +31,10 @@ namespace RAIDAChatNode.Model
             modelBuilder.Entity<Members>()
                             .HasOne(m => m.organization)
                             .WithMany(o => o.members);
+            modelBuilder.Entity<Members>()
+                            .HasMany(m => m.Transactions)
+                            .WithOne(t => t.owner);
+
 
             modelBuilder.Entity<Groups>()
                            .HasOne(g => g.organization)

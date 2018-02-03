@@ -11,17 +11,18 @@ namespace RAIDAChatNode.Model.Entity
         public string group_name_part { get; set; }
         public string photo_fragment { get; set; }
 
-        public string allow_or_deny { get; set; }
+        public bool privated { get; set; }
         public bool one_to_one { get; set; }
 
         public Members owner { get; set; }
         public virtual Organizations organization { get; set; }
         public virtual ICollection<MemberInGroup> MemberInGroup { get; set; }
-
+        public virtual ICollection<Shares> Shares { get; set; }
 
         public Groups()
         {
             MemberInGroup = new List<MemberInGroup>();
+            Shares = new List<Shares>();
         }
 
     }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace RAIDAChatNode.Migrations
 {
-    public partial class First : Migration
+    public partial class GO : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -31,7 +31,6 @@ namespace RAIDAChatNode.Migrations
                     file_data = table.Column<byte[]>(nullable: true),
                     file_extention = table.Column<string>(nullable: true),
                     kb_size = table.Column<int>(nullable: false),
-                    organizationprivate_id = table.Column<Guid>(nullable: true),
                     ownerprivate_id = table.Column<Guid>(nullable: true),
                     sending_date = table.Column<long>(nullable: false),
                     to_groupgroup_id = table.Column<Guid>(nullable: true),
@@ -47,12 +46,12 @@ namespace RAIDAChatNode.Migrations
                 columns: table => new
                 {
                     group_id = table.Column<Guid>(nullable: false),
-                    allow_or_deny = table.Column<string>(nullable: true),
                     group_name_part = table.Column<string>(nullable: true),
                     one_to_one = table.Column<bool>(nullable: false),
                     organizationprivate_id = table.Column<Guid>(nullable: true),
                     ownerprivate_id = table.Column<Guid>(nullable: true),
-                    photo_fragment = table.Column<string>(nullable: true)
+                    photo_fragment = table.Column<string>(nullable: true),
+                    privated = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -79,12 +78,12 @@ namespace RAIDAChatNode.Migrations
                 columns: table => new
                 {
                     private_id = table.Column<Guid>(nullable: false),
-                    away_busy_ready = table.Column<string>(nullable: true),
                     description_fragment = table.Column<string>(nullable: true),
                     kb_bandwidth_used = table.Column<int>(nullable: false),
                     last_use = table.Column<long>(nullable: false),
                     login = table.Column<string>(nullable: true),
                     nick_name = table.Column<string>(nullable: true),
+                    online = table.Column<bool>(nullable: false),
                     organizationprivate_id = table.Column<Guid>(nullable: true),
                     pass = table.Column<string>(nullable: true),
                     photo_fragment = table.Column<byte[]>(nullable: true)
@@ -106,7 +105,7 @@ namespace RAIDAChatNode.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    ownerIdprivate_id = table.Column<Guid>(nullable: true),
+                    ownerprivate_id = table.Column<Guid>(nullable: true),
                     rollbackTime = table.Column<long>(nullable: false),
                     tableName = table.Column<string>(nullable: true),
                     tableRowId = table.Column<string>(nullable: true),
@@ -116,8 +115,8 @@ namespace RAIDAChatNode.Migrations
                 {
                     table.PrimaryKey("PK_Transactions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Transactions_Members_ownerIdprivate_id",
-                        column: x => x.ownerIdprivate_id,
+                        name: "FK_Transactions_Members_ownerprivate_id",
+                        column: x => x.ownerprivate_id,
                         principalTable: "Members",
                         principalColumn: "private_id",
                         onDelete: ReferentialAction.Restrict);
@@ -149,11 +148,6 @@ namespace RAIDAChatNode.Migrations
                 column: "ownerprivate_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Shares_organizationprivate_id",
-                table: "Shares",
-                column: "organizationprivate_id");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Shares_ownerprivate_id",
                 table: "Shares",
                 column: "ownerprivate_id");
@@ -164,9 +158,9 @@ namespace RAIDAChatNode.Migrations
                 column: "to_groupgroup_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Transactions_ownerIdprivate_id",
+                name: "IX_Transactions_ownerprivate_id",
                 table: "Transactions",
-                column: "ownerIdprivate_id");
+                column: "ownerprivate_id");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_MemberInGroup_Members_memberId",
@@ -183,14 +177,6 @@ namespace RAIDAChatNode.Migrations
                 principalTable: "Groups",
                 principalColumn: "group_id",
                 onDelete: ReferentialAction.Cascade);
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Shares_Organizations_organizationprivate_id",
-                table: "Shares",
-                column: "organizationprivate_id",
-                principalTable: "Organizations",
-                principalColumn: "private_id",
-                onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Shares_Members_ownerprivate_id",

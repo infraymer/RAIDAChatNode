@@ -52,18 +52,20 @@ namespace RAIDAChatNode.Reflections
                         else
                         {
                             Groups group = db.Groups.First(it => it.group_id == info.groupId);
-                            //Надо будет добавить эту проверку на наличие открытой или закрытой группы
-                            //if (group.allow_or_deny.Equals("allow"))
-                            //{
-                            //    Add user
-                            //}
-                            //else
-                            //{
-                            //    output.success = false;
-                            //    output.msgError = "This group is closed";
-                            //}
+                           
+                            if (group.privated)
+                            {
+                                output.success = false;
+                                output.msgError = "This group is private";
+                                rez.msgForOwner = output;
+                                return rez;
+                            }
 
-                            int newId = db.MemberInGroup.OrderByDescending(it => it.Id).First().Id + 1;
+                            int newId = 0;
+                            if (db.MemberInGroup.Count() > 0)
+                            {
+                                newId = db.MemberInGroup.OrderByDescending(it => it.Id).FirstOrDefault().Id + 1;
+                            }
 
                             MemberInGroup mg = new MemberInGroup
                             {
@@ -73,21 +75,14 @@ namespace RAIDAChatNode.Reflections
                             };
                             db.MemberInGroup.Add(mg);
 
-                            try
-                            {
-                                db.SaveChanges();
-                            }
-                            catch(Exception e)
-                            {
-                                Console.WriteLine(e.Message);
-                            }
-                            
-                           // Transaction.saveTransaction(info.transactionId, Transaction.TABLE_NAME.MEMBERS_IN_GROUP, mg.Id.ToString(), owner);
+                            Transaction.saveTransaction(db, info.transactionId, Transaction.TABLE_NAME.MEMBERS_IN_GROUP, mg.Id.ToString(), owner);
+
+                            db.SaveChanges();
 
                             rez.forUserLogin.Add(user.login);
                             rez.msgForOther = new
                             {
-                                callFunction = "addMemberInGroup",
+                                callFunction = "AddMemberInGroup",
                                 id = info.groupId,
                                 name = group.group_name_part
                             };

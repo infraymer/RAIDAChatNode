@@ -1,12 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
+using RAIDAChatNode.Model.Entity;
 
 namespace RAIDAChatNode
 {
@@ -20,7 +22,7 @@ namespace RAIDAChatNode
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
-               // .UseUrls("http://192.168.0.102:49001")
+                .UseUrls(File.ReadLines("wwwroot\\url.txt").First())
                 .Build();
     }
 }

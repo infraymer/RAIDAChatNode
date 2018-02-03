@@ -17,7 +17,6 @@ namespace RAIDAChatNode.Model.Entity
 
         public Members owner { get; set; }
         public Groups to_group { get; set; }
-        public virtual Organizations organization { get; set; }
 
         public Shares()
         {

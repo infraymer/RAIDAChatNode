@@ -2,10 +2,9 @@
 
 namespace RAIDAChatNode.DTO
 { 
-    public class InputMsgInfo: AuthInfo, ITransactionInfo
+    public class InputMsgInfo: ITransactionInfo
     {
-        public string recipientLogin { get; set; }
-        public bool toGroup { get; set; }
+        public Guid dialogId { get; set; }
         public string textMsg { get; set; }
         public long deathDate { get; set; }
 
