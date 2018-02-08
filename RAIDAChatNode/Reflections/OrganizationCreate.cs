@@ -62,12 +62,12 @@ namespace RAIDAChatNode.Reflections
                         db.Organizations.Add(newOrganiz);
                         Transaction.saveTransaction(db, info.transactionId, Transaction.TABLE_NAME.ORGANIZATIONS, newOrganiz.private_id.ToString(), owner);
                         db.SaveChanges();
-                        output.data = new { publixId = newOrganiz.public_id, name = newOrganiz.org_name_part };
+                        output.data = new { publicId = newOrganiz.public_id, name = newOrganiz.org_name_part };
                     }
                     else
                     {
                         output.success = false;
-                        output.msgError = "Change publicId";
+                        output.msgError = "Change the publicId";
                     }
                 }
                 else

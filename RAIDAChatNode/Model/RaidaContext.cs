@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using RAIDAChatNode.Model.Entity;
+using System.IO;
 
 namespace RAIDAChatNode.Model
 {
@@ -22,8 +23,25 @@ namespace RAIDAChatNode.Model
         public DbSet<Transactions> Transactions { get; set; }
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        { 
-            optionsBuilder.UseSqlite("Filename=RAIDAChat.sqlite");
+        {
+            string[] config = File.ReadLines("wwwroot\\url.txt").ToArray();
+
+            switch (config[1].ToLower())
+            {
+                case "sqlite":
+                    optionsBuilder.UseSqlite(config[2]);
+                    break;
+                case "mssql":
+                    optionsBuilder.UseSqlServer(config[2]);
+                    break;
+                default:
+                    optionsBuilder.UseSqlite("Filename=RAIDAChat.sqlite");
+                    break;
+            }
+
+            
+            //optionsBuilder.UseSqlServer(@"data source=SEREGA\SQLSERV2016;initial catalog=CloudChatPortable;persist security info=True;user id=test;password=test;multipleactiveresultsets=True;application name=EntityFramework");
+            //optionsBuilder.UseSqlite("Filename=RAIDAChat.sqlite");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -33,7 +51,8 @@ namespace RAIDAChatNode.Model
                             .WithMany(o => o.members);
             modelBuilder.Entity<Members>()
                             .HasMany(m => m.Transactions)
-                            .WithOne(t => t.owner);
+                            .WithOne(t => t.owner)
+                            .OnDelete(DeleteBehavior.Cascade); ;
 
 
             modelBuilder.Entity<Groups>()
@@ -42,7 +61,7 @@ namespace RAIDAChatNode.Model
 
 
             modelBuilder.Entity<MemberInGroup>()
-                            .HasKey(mg => new { mg.memberId, mg.groupId, mg.Id });
+                            .HasIndex(mg=> new { mg.memberId, mg.groupId }).IsUnique(true);
 
 
             modelBuilder.Entity<MemberInGroup>()

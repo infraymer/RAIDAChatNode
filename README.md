@@ -92,6 +92,7 @@ For transmission from the server on the _client_ to use such template:
 >}
 **_Possible response errors:_**
 
+1. Change the publicId
 1. This dialog exists
 1. User is not found
 
@@ -125,6 +126,30 @@ For transmission from the server on the _client_ to use such template:
 1. Group is not found
 1. This user already consists in this group 
 1. This group is closed
+
+---
+**_Description:_** Change status dialog to private or not private. \
+**_Request to Chat service:_**
+
+>```JSON
+>{
+>  "execFun": "SetDialogPrivate",
+>  "data": { 
+>     "publicId": "GUID",
+>     "privated": " Boolean"
+>     }
+>}
+**_Return from Chat service:_**
+>```
+>For owner:
+>"data": { 
+>   "dialogId": "GUID",
+>   "privated": "Boolean"
+>}
+
+**_Possible response errors:_**
+
+1. This dialog not found or you not owner
 ---
 
 **_Description:_** Sending message for the server.\
@@ -219,11 +244,58 @@ For transmission from the server on the _client_ to use such template:
 1. This transaction is blocked
 
 ---
-
-1. Планирую добавить функцию для изменения статуса диалога, можно будет делать приватный диалог, т.е нельзя будет добавлять новых пользователей. Почти как oneToOne только можно будет менять этот статус.
-1. Придумаю в каком месте и как отправлять информацию о статсусе пользователя в чате, онлайн или оффлайн
-1. Дальше сделаю для управления организациями
-
+**_Description:_** Creation new organization.\
+   
+   **_Request to Chat service:_**
+   >```JSON
+   >{
+   >  "execFun": "OrganizationCreate",
+   >  "data": {
+   >     "publicId": " GUID",
+   >     "name": "String",
+   >     "transactionId": " GUID"
+   >     }
+   >}
+   
+   **_Return from Chat service:_**
+   >```
+   >"data": {
+   >    "publicId": "GUID",
+   >    "name": "String" 
+   >}
+   **_Possible response errors:_**
+   
+   1. Change the publicId
+   1. You a have already organization
+   
+   ---
+   **_Description:_** Creation new member in organization.\
+   
+   **_Request to Chat service:_**
+   >```JSON
+   >{
+   >  "execFun": "OrganizationAddMember",
+   >  "data": {
+   >     "login": " String",
+   >     "password": "String",
+   >     "nickName": "String",
+   >     "transactionId": " GUID"
+   >     }
+   >}
+   
+   **_Return from Chat service:_**
+   >```
+   >"data": {
+   >    "login": "String",
+   >    "nickName": "String" 
+   >}
+   **_Possible response errors:_**
+   
+   1. You a not consist in organization or a not organization owner
+   1. This login already exists
+   
+   ---
+   
 ##EXAMPLES
 
 Sample Request to Chat service for registration new user

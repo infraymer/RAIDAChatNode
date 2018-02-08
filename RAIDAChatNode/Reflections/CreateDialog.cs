@@ -38,9 +38,16 @@ namespace RAIDAChatNode.Reflections
 
             using (var db = new RaidaContext())
             {
-                Members owner = db.Members.First(it => it.login.Equals(myLogin));
+                if (db.Groups.Any(it => it.group_id == info.publicId))
+                {
+                    output.success = false;
+                    output.msgError = "Change the publicId";
+                    rez.msgForOwner = output;
+                    return rez;
+                }
 
-                //Условие на publicId, чтобы не было одинаковых ключей иначе ошибка
+                Members owner = db.Members.First(it => it.login.Equals(myLogin));
+              
                 Groups group = new Groups
                 {
                     group_id = info.publicId,

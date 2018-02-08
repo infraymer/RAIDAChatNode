@@ -8,6 +8,7 @@ namespace RAIDAChatNode.Model.Entity
 {
     public class MemberInGroup
     {
+        [Key]
         public int Id { get; set; }
         public Guid groupId { get; set; }
         public Groups group { get; set; }

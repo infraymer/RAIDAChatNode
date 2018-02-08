@@ -50,7 +50,7 @@ namespace RAIDAChatNode.Reflections
                             organization.members.Add(newMember);
                         
                             db.SaveChanges();
-                            output.data = new { newMember.login, newMember.nick_name };
+                            output.data = new { newMember.login, nickName = newMember.nick_name };
                             rez.msgForOwner = output;
                         }
                         catch(Exception e)

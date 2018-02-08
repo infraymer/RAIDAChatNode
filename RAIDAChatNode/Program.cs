@@ -1,14 +1,8 @@
-﻿using System;
-using System.IO;
-using System.Collections.Generic;
+﻿using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
-using RAIDAChatNode.Model.Entity;
+using RAIDAChatNode.Utils;
 
 namespace RAIDAChatNode
 {
@@ -16,6 +10,7 @@ namespace RAIDAChatNode
     {
         public static void Main(string[] args)
         {
+            //new TimerCleanUp().Start();
             BuildWebHost(args).Run();
         }
 

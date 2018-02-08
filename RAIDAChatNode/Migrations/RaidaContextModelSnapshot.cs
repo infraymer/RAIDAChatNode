@@ -47,15 +47,19 @@ namespace RAIDAChatNode.Migrations
 
             modelBuilder.Entity("RAIDAChatNode.Model.Entity.MemberInGroup", b =>
                 {
-                    b.Property<Guid>("memberId");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
 
                     b.Property<Guid>("groupId");
 
-                    b.Property<int>("Id");
+                    b.Property<Guid>("memberId");
 
-                    b.HasKey("memberId", "groupId", "Id");
+                    b.HasKey("Id");
 
                     b.HasIndex("groupId");
+
+                    b.HasIndex("memberId", "groupId")
+                        .IsUnique();
 
                     b.ToTable("MemberInGroup");
                 });
@@ -217,7 +221,8 @@ namespace RAIDAChatNode.Migrations
                 {
                     b.HasOne("RAIDAChatNode.Model.Entity.Members", "owner")
                         .WithMany("Transactions")
-                        .HasForeignKey("ownerprivate_id");
+                        .HasForeignKey("ownerprivate_id")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

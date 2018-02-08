@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace RAIDAChatNode.Migrations
 {
-    public partial class GO : Migration
+    public partial class Go : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -12,13 +12,14 @@ namespace RAIDAChatNode.Migrations
                 name: "MemberInGroup",
                 columns: table => new
                 {
-                    memberId = table.Column<Guid>(nullable: false),
-                    groupId = table.Column<Guid>(nullable: false),
                     Id = table.Column<int>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    groupId = table.Column<Guid>(nullable: false),
+                    memberId = table.Column<Guid>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MemberInGroup", x => new { x.memberId, x.groupId, x.Id });
+                    table.PrimaryKey("PK_MemberInGroup", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -119,7 +120,7 @@ namespace RAIDAChatNode.Migrations
                         column: x => x.ownerprivate_id,
                         principalTable: "Members",
                         principalColumn: "private_id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -136,6 +137,12 @@ namespace RAIDAChatNode.Migrations
                 name: "IX_MemberInGroup_groupId",
                 table: "MemberInGroup",
                 column: "groupId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MemberInGroup_memberId_groupId",
+                table: "MemberInGroup",
+                columns: new[] { "memberId", "groupId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Members_organizationprivate_id",

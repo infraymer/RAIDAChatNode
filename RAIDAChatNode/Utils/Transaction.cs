@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using RAIDAChatNode.Model.Entity;
 using RAIDAChatNode.Model;
-using Microsoft.EntityFrameworkCore;
-using System.Data.SqlClient;
-using System.Text;
-using SQLitePCL;
-using Microsoft.Data.Sqlite;
+using System.Reflection;
+using System.ComponentModel.DataAnnotations;
 
 namespace RAIDAChatNode.Utils
 {
@@ -31,7 +27,6 @@ namespace RAIDAChatNode.Utils
 
         public static void rollbackTransaction(Guid transactionId, Members owner)
         {
-            String sqlPattern = @"DELETE FROM {0} WHERE {1} = @Param"; //0 - TableName, 1 - id column, 2 - remove id
             long dateNow = DateTimeOffset.Now.ToUnixTimeSeconds();
 
             using (var db = new RaidaContext())
@@ -41,15 +36,7 @@ namespace RAIDAChatNode.Utils
                     List<Transactions> trans = db.Transactions.Where(it => it.transactionId == transactionId && it.owner == owner && it.rollbackTime > dateNow).ToList();
                     trans.ForEach(delegate (Transactions t)
                     {
-                        String tablName = t.tableName.Trim();
-                        String sql = String.Format(sqlPattern, tablName, TABLE_NAME.ColumnId[tablName]);
-                        try
-                        {
-                            db.Database.ExecuteSqlCommand(sql, new SqlParameter("Param", Guid.Parse(t.tableRowId.Trim()))); //НЕ РАБОТАЕТ
-                        }catch(Exception e)
-                        {
-                            Console.WriteLine(e.Message);
-                        }
+                        ReflectionRemove(db, t.tableName.Trim(), t.tableRowId.Trim());
                     });
                     db.SaveChanges();
                 }
@@ -63,18 +50,6 @@ namespace RAIDAChatNode.Utils
             public const string MEMBERS_IN_GROUP = "MemberInGroup";
             public const string ORGANIZATIONS = "Organizations";
             public const string SHARES = "Shares";
-
-            private static readonly Dictionary<String, String> _ColumnId = new Dictionary<String, String>() {
-                { MEMBERS, "private_id" },
-                { GROUPS, "group_id" },
-                { MEMBERS_IN_GROUP, "Id" },
-                { ORGANIZATIONS, "private_id" },
-                { SHARES, "id" },
-            };
-            public static Dictionary<String, String> ColumnId
-            {
-                get { return _ColumnId; }
-            }
         }
 
         /// <summary>
@@ -97,6 +72,50 @@ namespace RAIDAChatNode.Utils
                     });
 
                 db.SaveChanges();
+            }
+        }
+
+        /// <summary>
+        /// Reflection remove data from database
+        /// </summary>
+        /// <param name="db">DataBase context</param>
+        /// <param name="entity">Name of class</param>
+        /// <param name="remId">Remove key</param>
+        private static void  ReflectionRemove(RaidaContext db, String entity, String remId)
+        {
+            //Подключаем к бд нужную таблицу
+            var asob = Assembly.GetAssembly(typeof(Members));
+            var tEntity = asob.GetType($"RAIDAChatNode.Model.Entity.{entity}", false, true);
+            var method = db.GetType().GetMember("Set").Cast<MethodInfo>().Where(x => x.IsGenericMethodDefinition).FirstOrDefault();
+            var genericMethod = method.MakeGenericMethod(tEntity);
+            var invokeSet = genericMethod.Invoke(db, null);
+
+            //Достаём контекст
+            var eContext = db.GetType().GetProperty(entity).GetValue(db);
+
+            //Получаем первичный ключ TESTING FOR MEMBERSINGROUP
+            var key = tEntity.GetProperties()
+                            .Where(x => x.GetCustomAttributes<KeyAttribute>() != null)
+                            .FirstOrDefault();
+
+            dynamic Id;
+            if (key.PropertyType == typeof(Guid))
+            {
+                Id = Guid.Parse(remId);
+            }
+            else
+            {
+                Id = int.Parse(remId);
+            }
+
+            //Находим элемент
+            var mFind = eContext.GetType().GetMethod("Find");
+            var item = mFind.Invoke(eContext, new object[] { new object[] { Id } });
+            if (item != null)
+            {
+                //Удаляем его
+                var mRemove = eContext.GetType().GetMethod("Remove");
+                mRemove.Invoke(eContext, new object[] { item });
             }
         }
     }
