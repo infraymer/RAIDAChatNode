@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Isopoh.Cryptography.Argon2;
 using Newtonsoft.Json;
 using RAIDAChatNode.Model;
 using RAIDAChatNode.Model.Entity;
@@ -33,9 +34,11 @@ namespace RAIDAChatNode.Reflections
                 using (var db = new RaidaContext())
                 {
 
-                    if (db.Members.Any(it => it.login.Equals(info.login.Trim(), StringComparison.CurrentCultureIgnoreCase) && it.pass.Equals(info.password)))
+                    //if (db.Members.Any(it => it.login.Equals(info.login.Trim(), StringComparison.CurrentCultureIgnoreCase) && it.pass.Equals(info.password)))
+                    if (db.Members.Any(it => it.login.Equals(info.login.Trim(), StringComparison.CurrentCultureIgnoreCase) && Argon2.Verify(it.pass, info.password, null)))
                     {
-                        Members user = db.Members.First(it => it.login.Equals(info.login.Trim(), StringComparison.CurrentCultureIgnoreCase) && it.pass.Equals(info.password));
+                        //Members user = db.Members.First(it => it.login.Equals(info.login.Trim(), StringComparison.CurrentCultureIgnoreCase) && it.pass.Equals(info.password));
+                        Members user = db.Members.First(it => it.login.Equals(info.login.Trim(), StringComparison.CurrentCultureIgnoreCase) && Argon2.Verify(it.pass, info.password, null));
 
                         output.auth = true;
                         output.login = user.login;

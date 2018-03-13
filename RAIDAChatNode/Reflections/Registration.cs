@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Isopoh.Cryptography.Argon2;
 using RAIDAChatNode.DTO;
 using RAIDAChatNode.Utils;
 using RAIDAChatNode.Model;
@@ -33,7 +34,7 @@ namespace RAIDAChatNode.Reflections
             {
                 return rez;
             }
-
+            
             using (var db = new RaidaContext())
             {
                 if(db.Members.Any(it => it.login.Equals(info.login.Trim(), StringComparison.CurrentCultureIgnoreCase)))
@@ -49,6 +50,7 @@ namespace RAIDAChatNode.Reflections
                         privateId = Guid.NewGuid();
                     }
 
+                    info.password = Argon2.Hash(info.password); //Hashing password
                     Members member = new Members
                     {
                         private_id = privateId,

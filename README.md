@@ -118,7 +118,8 @@ For transmission from the server on the _client_ to use such template:
 >"data": {
 >    "callFunction": "AddMemberInGroup",
 >    "id": "GUID",
->    "name": "String" 
+>    "name": "String", 
+>    "oneToOne": "Boolean",
 >}
 **_Possible response errors:_**
 
@@ -161,7 +162,7 @@ For transmission from the server on the _client_ to use such template:
 >  "data": {
 >     "dialogId": "GUID",   
 >     "textMsg": "String",
->     "guidMsg": "GUID",
+>     "msgId": "GUID",
 >     "curFrg": "Integer",
 >     "totalFrg": "Integer",
 >     "transactionId": " GUID",

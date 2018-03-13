@@ -15,36 +15,55 @@ namespace RAIDAChatNode.Reflections
     {
         public OutputSocketMessageWithUsers Execute(object val, string myLogin)
         {
+
+            #region Тестовые данные
+            /* { 
+                    "execFun": "GetMsg", 
+                    "data": {
+                        "dialogId": "788FEFAD0ED24436AD73D968685110E8",
+                        "msgCount": "2",
+                        "offset": "0"
+                    }
+                }
+            */
+            #endregion
+
             OutputSocketMessage output = new OutputSocketMessage("getMsg", true, "", new { });
             OutputSocketMessageWithUsers rez = new OutputSocketMessageWithUsers();
+
+            GetMsgInfo info = DeserializeObject.ParseJSON<GetMsgInfo>(val, output, out rez);
+            if (info == null)
+            {
+                return rez;
+            }
 
             using (var db = new RaidaContext())
             {
                 Members owner = db.Members.First(it => it.login.Equals(myLogin));
 
-                List<OutGetMsgInfo> list = new List<OutGetMsgInfo>();
-                List<MemberInGroup> mg = db.MemberInGroup.Include(g => g.group).ThenInclude(s => s.Shares).Where(it => it.member.login.Equals(myLogin)).ToList();
-
-                mg.ForEach(it => {
-                    string groupName = it.group.group_name_part;
-                    if (it.group.one_to_one)
+                if(db.MemberInGroup.Include(g => g.group).Any(it => it.member.login.Equals(myLogin) && it.groupId == info.dialogId))
+                {
+                    MemberInGroup mg = db.MemberInGroup.Include(g => g.group).ThenInclude(s => s.Shares).Where(it => it.member.login.Equals(myLogin) && it.groupId == info.dialogId).First();
+                    
+                    string groupName = mg.group.group_name_part;
+                    if (mg.group.one_to_one)
                     {
-                        try
-                        {
-                            groupName = db.MemberInGroup.Include(m => m.member).FirstOrDefault(mig => mig.group == it.group && mig.member != owner)?.member.nick_name;
-                        }catch(Exception e)
-                        {
-                            Console.WriteLine(e.Message);
-                        }
+                        groupName = db.MemberInGroup.Include(m => m.member).FirstOrDefault(mig => mig.group == mg.group && mig.member != owner)?.member.nick_name;
                     }
-                    OutGetMsgInfo group = new OutGetMsgInfo(it.group.group_id, groupName);
-                    it.group.Shares.OrderBy(s => s.sending_date)
+                    OutGetMsgInfo groupMsg = new OutGetMsgInfo(mg.group.group_id, groupName, mg.group.one_to_one);
+                    mg.group.Shares.OrderBy(s => s.sending_date)
+                        .Skip(info.offset)
+                        .Take(info.msgCount)
                         .ToList()
-                        .ForEach(msg => group.messages.Add(new OneMessageInfo(msg.id, Encoding.Unicode.GetString(msg.file_data), msg.current_fragment, msg.total_fragment, msg.sending_date, msg.owner.nick_name)));
-                    list.Add(group);
-                });
+                        .ForEach(msg => groupMsg.messages.Add(new OneMessageInfo(msg.id, Encoding.Unicode.GetString(msg.file_data), msg.current_fragment, msg.total_fragment, msg.sending_date, msg.owner.nick_name)));
 
-                output.data = list;
+                    output.data = groupMsg;
+                }
+                else
+                {
+                    output.success = false;
+                    output.msgError = "Dialog is not found";
+                }
             }
 
             rez.msgForOwner = output;

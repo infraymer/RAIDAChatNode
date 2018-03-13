@@ -7,19 +7,21 @@ namespace RAIDAChatNode.DTO
     {
         public Guid dialogId { get; set; }        
         public string groupName { get; set; }
+        public bool oneToOne { get; set; }
         public List<OneMessageInfo> messages { get; set; }
 
         public OutGetMsgInfo()
         {
             messages = new List<OneMessageInfo>();
         }
-        public OutGetMsgInfo(Guid dialogId, string groupName):this()
+        public OutGetMsgInfo(Guid dialogId, string groupName, bool oneToOne):this()
         {
             this.dialogId = dialogId;
             this.groupName = groupName;
+            this.oneToOne = oneToOne;
         }
 
-        public OutGetMsgInfo(Guid dialogId, string groupName, List<OneMessageInfo> msgs) : this(dialogId, groupName)
+        public OutGetMsgInfo(Guid dialogId, string groupName, bool oneToOne, List<OneMessageInfo> msgs) : this(dialogId, groupName, oneToOne)
         {
             messages = msgs;
         }

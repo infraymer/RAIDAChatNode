@@ -1,5 +1,7 @@
 ﻿using NetSocket.Sockets;
 using System;
+using Isopoh.Cryptography.Argon2;
+// ReSharper disable All
 
 namespace RAIDAChatNode.DTO
 {

@@ -27,7 +27,7 @@ namespace RAIDAChatNode.Reflections
             */
             #endregion
 
-            OutputSocketMessage output = new OutputSocketMessage("createGroup", true, "", new { });
+            OutputSocketMessage output = new OutputSocketMessage("createDialog", true, "", new { });
             OutputSocketMessageWithUsers rez = new OutputSocketMessageWithUsers();
 
             GroupInfo info = DeserializeObject.ParseJSON<GroupInfo>(val, output, out rez);

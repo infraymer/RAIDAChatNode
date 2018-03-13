@@ -84,7 +84,8 @@ namespace RAIDAChatNode.Reflections
                             {
                                 callFunction = "AddMemberInGroup",
                                 id = info.groupId,
-                                name = group.group_name_part
+                                name = group.group_name_part,
+                                oneToOne = group.one_to_one
                             };
                         }
                     }

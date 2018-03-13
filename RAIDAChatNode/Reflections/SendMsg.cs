@@ -86,8 +86,8 @@ namespace RAIDAChatNode.Reflections
                     }
                     OneMessageInfo newMsg = new OneMessageInfo(msg.id, info.textMsg, msg.current_fragment, msg.total_fragment, msg.sending_date, owner.nick_name);
 
-                    output.data = new OutGetMsgInfo(gr.group_id, groupNameForOwner, new List<OneMessageInfo>() { newMsg});
-                    outputOther.data = new { callFunction = "sendMsg", data = new OutGetMsgInfo(gr.group_id, groupNameForOther, new List<OneMessageInfo>() { newMsg }) };
+                    output.data = new OutGetMsgInfo(gr.group_id, groupNameForOwner, gr.one_to_one, new List<OneMessageInfo>() { newMsg});
+                    outputOther.data = new { callFunction = "sendMsg", data = new OutGetMsgInfo(gr.group_id, groupNameForOther, gr.one_to_one, new List<OneMessageInfo>() { newMsg }) };
 
                     
                     Transaction.removeMessageAboveLimit(gr);
