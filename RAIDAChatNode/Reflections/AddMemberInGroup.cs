@@ -62,7 +62,7 @@ namespace RAIDAChatNode.Reflections
                             }
 
                             int newId = 0;
-                            if (db.MemberInGroup.Count() > 0)
+                            if (db.MemberInGroup.Any())
                             {
                                 newId = db.MemberInGroup.OrderByDescending(it => it.Id).FirstOrDefault().Id + 1;
                             }

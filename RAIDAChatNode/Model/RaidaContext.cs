@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using RAIDAChatNode.Model.Entity;
 using System.IO;
+using RAIDAChatNode.DTO.Configuration;
 
 namespace RAIDAChatNode.Model
 {
@@ -24,18 +25,16 @@ namespace RAIDAChatNode.Model
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            string[] config = File.ReadLines("wwwroot\\url.txt").ToArray();
-
-            switch (config[1].ToLower())
+            switch (MainConfig.DB.NameDB.ToLower())
             {
                 case "sqlite":
-                    optionsBuilder.UseSqlite(config[2]);
+                    optionsBuilder.UseSqlite(MainConfig.DB.ConnectionString);
                     break;
                 case "mssql":
-                    optionsBuilder.UseSqlServer(config[2]);
+                    optionsBuilder.UseSqlServer(MainConfig.DB.ConnectionString);
                     break;
                 default:
-                    optionsBuilder.UseSqlite("Filename=RAIDAChat.sqlite");
+                    optionsBuilder.UseSqlite("Filename=RAIDAChat.db");
                     break;
             }
 

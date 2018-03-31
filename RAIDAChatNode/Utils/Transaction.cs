@@ -5,6 +5,7 @@ using RAIDAChatNode.Model.Entity;
 using RAIDAChatNode.Model;
 using System.Reflection;
 using System.ComponentModel.DataAnnotations;
+using RAIDAChatNode.DTO.Configuration;
 
 namespace RAIDAChatNode.Utils
 {
@@ -12,9 +13,10 @@ namespace RAIDAChatNode.Utils
     {
         public static void saveTransaction(RaidaContext db, Guid transactionId, String tableName, String rowId, Members owner)
         {
-            const double DiffRoll = 60; //How long seconds rollback access 
-            Int64 rollback = DateTimeOffset.Now.AddSeconds(DiffRoll).ToUnixTimeSeconds();
-
+            long DiffRoll = MainConfig.TransactionRollback; //How long seconds rollback access 
+            
+            Int64 rollback = SystemClock.CurrentTime + DiffRoll;
+            
             Transactions newTransaction = new Transactions {
                 transactionId = transactionId,
                 tableName = tableName,
@@ -27,8 +29,9 @@ namespace RAIDAChatNode.Utils
 
         public static void rollbackTransaction(Guid transactionId, Members owner)
         {
-            long dateNow = DateTimeOffset.Now.ToUnixTimeSeconds();
-
+            //long dateNow = DateTimeOffset.Now.ToUnixTimeSeconds();
+            long dateNow = SystemClock.CurrentTime;
+            
             using (var db = new RaidaContext())
             {
                 if (db.Transactions.Any(it => it.transactionId == transactionId && it.owner == owner && it.rollbackTime > dateNow))
@@ -58,7 +61,7 @@ namespace RAIDAChatNode.Utils
         /// <param name="group">Check dialog</param>
         public static void removeMessageAboveLimit(Groups group)
         {
-            const int limit = 100;
+            int limit = MainConfig.LimitMsgForDialog;
             List<Shares> extra = group.Shares.ToList();
 
             using (var db = new RaidaContext())

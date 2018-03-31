@@ -62,8 +62,8 @@ namespace RAIDAChatNode.Reflections
                         file_data = Encoding.Unicode.GetBytes(info.textMsg),
                         file_extention = "none",
                         kb_size = 0,
-                        sending_date = DateTimeOffset.Now.ToUnixTimeSeconds(),
-                        death_date = info.deathDate > 0 ? DateConvert.validateTimestamp(info.deathDate) : DateTimeOffset.Now.AddYears(1000).ToUnixTimeSeconds(),
+                        sending_date = SystemClock.CurrentTime, // DateTimeOffset.Now.ToUnixTimeSeconds(),
+                        death_date = info.deathDate > 0 ? DateConvert.validateTimestamp(info.deathDate) : DateTimeOffset.Now.AddYears(2000).ToUnixTimeSeconds(),
                         to_group = gr
                     };
                     gr.Shares.Add(msg);

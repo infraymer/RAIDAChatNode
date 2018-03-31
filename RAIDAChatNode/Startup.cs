@@ -22,6 +22,7 @@ namespace RAIDAChatNode
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRealTimeComm();
+            services.AddMvc();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -29,16 +30,18 @@ namespace RAIDAChatNode
         {
 
             app.UseRealTimeComm();
-
+            app.UseMvc();
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
+            /*
             app.Run(async (context) =>
             {
                 await context.Response.WriteAsync("Hello World!");
-            });
+            });*/
         }
     }
 }

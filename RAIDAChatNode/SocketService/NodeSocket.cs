@@ -7,6 +7,7 @@ using System;
 using RAIDAChatNode.Reflections;
 using RAIDAChatNode.Model;
 using RAIDAChatNode.Model.Entity;
+using RAIDAChatNode.Utils;
 
 namespace RAIDAChatNode.SocketService
 {
@@ -24,7 +25,7 @@ namespace RAIDAChatNode.SocketService
                 {
                     Members user = db.Members.First(it => it.login.Equals(cl.login));
                     user.online = false;
-                    user.last_use = DateTimeOffset.Now.ToUnixTimeSeconds();
+                    user.last_use = SystemClock.CurrentTime; //DateTimeOffset.Now.ToUnixTimeSeconds();
                     db.SaveChanges();
                     //организовать отправку остальным клиентом
                 }

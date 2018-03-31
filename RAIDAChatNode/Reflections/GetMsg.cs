@@ -51,7 +51,8 @@ namespace RAIDAChatNode.Reflections
                         groupName = db.MemberInGroup.Include(m => m.member).FirstOrDefault(mig => mig.group == mg.group && mig.member != owner)?.member.nick_name;
                     }
                     OutGetMsgInfo groupMsg = new OutGetMsgInfo(mg.group.group_id, groupName, mg.group.one_to_one);
-                    mg.group.Shares.OrderBy(s => s.sending_date)
+                    mg.group.Shares.Where(it => it.death_date > SystemClock.CurrentTime)
+                        .OrderBy(s => s.sending_date)
                         .Skip(info.offset)
                         .Take(info.msgCount)
                         .ToList()

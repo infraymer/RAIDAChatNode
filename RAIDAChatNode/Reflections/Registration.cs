@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Isopoh.Cryptography.Argon2;
+using Isopoh.Cryptography.SecureArray;
 using RAIDAChatNode.DTO;
 using RAIDAChatNode.Utils;
 using RAIDAChatNode.Model;
@@ -57,7 +58,7 @@ namespace RAIDAChatNode.Reflections
                         login = info.login.Trim().ToLower(),
                         pass = info.password,
                         nick_name = info.nickName,
-                        last_use = DateTimeOffset.Now.ToUnixTimeSeconds(),
+                        last_use = SystemClock.CurrentTime, //DateTimeOffset.Now.ToUnixTimeSeconds(),
                         description_fragment = "",
                         photo_fragment = new byte[5],
                         kb_bandwidth_used = 0,

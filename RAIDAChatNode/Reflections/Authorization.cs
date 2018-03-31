@@ -3,9 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Isopoh.Cryptography.Argon2;
+using Microsoft.Extensions.Internal;
 using Newtonsoft.Json;
 using RAIDAChatNode.Model;
 using RAIDAChatNode.Model.Entity;
+using SystemClock = RAIDAChatNode.Utils.SystemClock;
 
 namespace RAIDAChatNode.Reflections
 {
@@ -46,7 +48,7 @@ namespace RAIDAChatNode.Reflections
                         output.password = info.password;
 
                         user.online = true;
-                        user.last_use = DateTimeOffset.Now.ToUnixTimeSeconds();
+                        user.last_use = SystemClock.CurrentTime; //DateTimeOffset.Now.ToUnixTimeSeconds();
                         db.SaveChanges();
                     }
                     else
