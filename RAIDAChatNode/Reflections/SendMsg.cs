@@ -49,48 +49,70 @@ namespace RAIDAChatNode.Reflections
 
                 if(db.Groups.Any(it => it.group_id == info.dialogId && it.MemberInGroup.Any(mg => mg.group == it && mg.member == owner))) //Check created group and member in this group
                 {
-
-                    Groups gr = db.Groups.Include(s => s.Shares).First(it => it.group_id == info.dialogId);
-
-                    //НАДО ПРОВЕРКУ ИД СООБЩЕНИЙ ИНАЧЕ ВЫЛЕТАЕТ
-                    Shares msg = new Shares
+                    if (!db.Shares.Any(it => it.id == info.msgId)) //Check exist message with Id
                     {
-                        id = info.msgId,
-                        owner = owner,
-                        current_fragment = info.curFrg,
-                        total_fragment = info.totalFrg,
-                        file_data = Encoding.Unicode.GetBytes(info.textMsg),
-                        file_extention = "none",
-                        kb_size = 0,
-                        sending_date = SystemClock.CurrentTime, // DateTimeOffset.Now.ToUnixTimeSeconds(),
-                        death_date = info.deathDate > 0 ? DateConvert.validateTimestamp(info.deathDate) : DateTimeOffset.Now.AddYears(2000).ToUnixTimeSeconds(),
-                        to_group = gr
-                    };
-                    gr.Shares.Add(msg);
-                    db.Shares.Add(msg);
+                        Groups gr = db.Groups.Include(s => s.Shares).First(it => it.group_id == info.dialogId);
 
-                    Transaction.saveTransaction(db, info.transactionId, Transaction.TABLE_NAME.SHARES, msg.id.ToString(), owner);
+                        Shares msg = new Shares
+                        {
+                            id = info.msgId,
+                            owner = owner,
+                            current_fragment = info.curFrg,
+                            total_fragment = info.totalFrg,
+                            file_data = Encoding.Unicode.GetBytes(info.textMsg),
+                            file_extention = "none",
+                            kb_size = 0,
+                            sending_date = SystemClock.CurrentTime, // DateTimeOffset.Now.ToUnixTimeSeconds(),
+                            death_date =
+                                info.deathDate > 0
+                                    ? DateConvert.validateTimestamp(info.deathDate)
+                                    : DateTimeOffset.Now.AddYears(2000).ToUnixTimeSeconds(),
+                            to_group = gr
+                        };
+                        gr.Shares.Add(msg);
+                        db.Shares.Add(msg);
 
-                    db.SaveChanges();
+                        Transaction.saveTransaction(db, info.transactionId, Transaction.TABLE_NAME.SHARES,
+                            msg.id.ToString(), owner);
 
-                    List<MemberInGroup> membersInGroup = db.MemberInGroup.Include(m => m.member).Where(it => it.group == gr && it.member != owner).ToList();
-                    membersInGroup.ForEach(it => rez.forUserLogin.Add(it.member.login));
+                        db.SaveChanges();
 
-                    string groupNameForOwner = gr.group_name_part,
-                           groupNameForOther = gr.group_name_part;
+                        List<MemberInGroup> membersInGroup = db.MemberInGroup.Include(m => m.member)
+                            .Where(it => it.group == gr && it.member != owner).ToList();
+                        membersInGroup.ForEach(it => rez.forUserLogin.Add(it.member.login));
 
-                    if (gr.one_to_one)
-                    {
-                        groupNameForOwner = membersInGroup.First(it => it.member != owner).member.nick_name;
-                        groupNameForOther = owner.nick_name;   
+                        string groupNameForOwner = gr.group_name_part,
+                            groupNameForOther = gr.group_name_part;
+
+                        if (gr.one_to_one)
+                        {
+                            groupNameForOwner = membersInGroup.First(it => it.member != owner).member.nick_name;
+                            groupNameForOther = owner.nick_name;
+                        }
+
+                        OneMessageInfo newMsg = new OneMessageInfo(msg.id, info.textMsg, msg.current_fragment,
+                            msg.total_fragment, msg.sending_date, owner.nick_name);
+
+                        output.data = new OutGetMsgInfo(gr.group_id, groupNameForOwner, gr.one_to_one,
+                            new List<OneMessageInfo>() {newMsg});
+                        outputOther.data = new
+                        {
+                            callFunction = "sendMsg",
+                            data = new OutGetMsgInfo(gr.group_id, groupNameForOther, gr.one_to_one,
+                                new List<OneMessageInfo>() {newMsg})
+                        };
+
+
+                        Transaction.removeMessageAboveLimit(gr);
                     }
-                    OneMessageInfo newMsg = new OneMessageInfo(msg.id, info.textMsg, msg.current_fragment, msg.total_fragment, msg.sending_date, owner.nick_name);
-
-                    output.data = new OutGetMsgInfo(gr.group_id, groupNameForOwner, gr.one_to_one, new List<OneMessageInfo>() { newMsg});
-                    outputOther.data = new { callFunction = "sendMsg", data = new OutGetMsgInfo(gr.group_id, groupNameForOther, gr.one_to_one, new List<OneMessageInfo>() { newMsg }) };
-
-                    
-                    Transaction.removeMessageAboveLimit(gr);
+                    else
+                    {
+                        output.success = false;
+                        output.msgError = "Message with this ID is exist";
+                        output.data = new { id = info.msgId };
+                        rez.msgForOwner = output;
+                        return rez; 
+                    }
                 }
                 else
                 {

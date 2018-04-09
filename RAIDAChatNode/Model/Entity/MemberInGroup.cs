@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace RAIDAChatNode.Model.Entity
 {
@@ -14,6 +11,7 @@ namespace RAIDAChatNode.Model.Entity
         public Groups group { get; set; }
 
         public Guid memberId { get; set; }
+        
         public Members member { get; set; }
     }
 }

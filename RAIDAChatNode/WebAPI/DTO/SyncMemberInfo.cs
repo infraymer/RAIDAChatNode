@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace RAIDAChatNode.WebAPI.DTO
 {
-    public class SyncMemberInfo
+    public class SyncMemberInfo : ICollcetionObject
     {
         [JsonProperty(PropertyName = "description_fragment")]
         public string Descript { get; set; }
@@ -27,7 +27,7 @@ namespace RAIDAChatNode.WebAPI.DTO
         [JsonProperty(PropertyName = "photo_fragment")]
         public byte[] Photo { get; set; }
         
-        [JsonProperty(PropertyName = "groups")]
-        public List<Guid> Groups { get; set; }
+        [JsonProperty(PropertyName = "hash")]
+        public string Hash { get; set; }
     }
 }

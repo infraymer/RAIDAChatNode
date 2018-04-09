@@ -33,11 +33,13 @@ namespace RAIDAChatNode.Model
                 case "mssql":
                     optionsBuilder.UseSqlServer(MainConfig.DB.ConnectionString);
                     break;
+                case "mysql":
+                    optionsBuilder.UseMySql(MainConfig.DB.ConnectionString);
+                    break;
                 default:
                     optionsBuilder.UseSqlite("Filename=RAIDAChat.db");
                     break;
             }
-
             
             //optionsBuilder.UseSqlServer(@"data source=SEREGA\SQLSERV2016;initial catalog=CloudChatPortable;persist security info=True;user id=test;password=test;multipleactiveresultsets=True;application name=EntityFramework");
             //optionsBuilder.UseSqlite("Filename=RAIDAChat.sqlite");

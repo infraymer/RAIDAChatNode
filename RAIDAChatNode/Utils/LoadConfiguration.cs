@@ -22,9 +22,6 @@ namespace RAIDAChatNode.Utils
             {
                 CloseApp("File of configuration is not found or error opening");
             }
-
-            Console.WriteLine(config);
-            
             
             try
             {
@@ -67,7 +64,7 @@ namespace RAIDAChatNode.Utils
                         tmp += $"user id = {user}; password = {pass};";
                         break;
                     case SupportedDB.MySQL:
-                        tmp += $"Uid = {user}; pwd = {pass};";
+                        tmp += $"user = {user}; password = {pass};";
                         break;
                 }
 
@@ -79,7 +76,7 @@ namespace RAIDAChatNode.Utils
                 }
                 catch (Exception e)
                 {
-                    CloseApp($"Database connection is fail. Error: {e.Message}");
+                    CloseApp($"Database connection is fail.\r\nError: {e.Message}");
                 }
             }
         }
@@ -108,8 +105,8 @@ namespace RAIDAChatNode.Utils
         {
             public const string SQLite = "SQLite";
             public const string MSSQL = "MSSQL";
-            
             public const string MySQL = "MySQL";
+            
             public const string Oracle = "Oracle";
         }
         
@@ -120,7 +117,7 @@ namespace RAIDAChatNode.Utils
         public static void CloseApp(string errorMessage)
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"{errorMessage}! Server is was stopped! Press enter...");
+            Console.WriteLine($"{errorMessage}!\r\nServer is was stopped!\r\nPress Enter...");
             Console.ReadLine();
             Environment.Exit(-1);
         }
