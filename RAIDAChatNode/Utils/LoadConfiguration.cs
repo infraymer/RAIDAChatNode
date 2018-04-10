@@ -1,8 +1,10 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Internal;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using RAIDAChatNode.DTO.Configuration;
 using RAIDAChatNode.Model;
@@ -26,11 +28,7 @@ namespace RAIDAChatNode.Utils
             try
             {
                 SerializeMainConfig serConf = JsonConvert.DeserializeObject<SerializeMainConfig>(config);
-
-                if (serConf.Connection.IP == null ||  !Regex.IsMatch(serConf.Connection.IP, "\\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\\.|$)){4}\\b") || serConf.TrustedServers.Count == 0)
-                {
-                    throw new Exception("IP address is not valid OR count trusted servers = 0");
-                }
+                DeserializeObject.IsValid(serConf);
 
                 MainConfig.Mapping(serConf);
                 CheckDB();

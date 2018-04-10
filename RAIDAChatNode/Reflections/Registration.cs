@@ -51,14 +51,14 @@ namespace RAIDAChatNode.Reflections
                         privateId = Guid.NewGuid();
                     }
 
-                    info.password = Argon2.Hash(info.password); //Hashing password
+                    info.password = Argon2.Hash(info.password, 1, 16384); //Hashing password
                     Members member = new Members
                     {
                         private_id = privateId,
                         login = info.login.Trim().ToLower(),
                         pass = info.password,
                         nick_name = info.nickName,
-                        last_use = SystemClock.CurrentTime, //DateTimeOffset.Now.ToUnixTimeSeconds(),
+                        last_use = SystemClock.CurrentTime,
                         description_fragment = "",
                         photo_fragment = new byte[5],
                         kb_bandwidth_used = 0,

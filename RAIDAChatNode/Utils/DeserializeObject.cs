@@ -1,4 +1,6 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.WindowsAzure.Storage.Blob.Protocol;
 using RAIDAChatNode.DTO;
 using Newtonsoft.Json;
 
@@ -14,7 +16,6 @@ namespace RAIDAChatNode.Utils
             {
                 var settings = new JsonSerializerSettings
                 {
-                    //NullValueHandling = NullValueHandling.Include,
                     MissingMemberHandling = MissingMemberHandling.Error
                 };
 
@@ -29,5 +30,12 @@ namespace RAIDAChatNode.Utils
             return sucObj;
         }
 
+       
+        public static void IsValid(object model)
+        {
+            var validCOntext = new ValidationContext(model, null, null);
+            Validator.ValidateObject(model, validCOntext, true);
+        }
+        
     }
 }

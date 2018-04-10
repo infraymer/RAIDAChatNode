@@ -1,7 +1,9 @@
 ﻿using RAIDAChatNode.DTO;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using Isopoh.Cryptography.Argon2;
 using Microsoft.Extensions.Internal;
 using Newtonsoft.Json;
@@ -35,20 +37,15 @@ namespace RAIDAChatNode.Reflections
 
                 using (var db = new RaidaContext())
                 {
-
-                    //if (db.Members.Any(it => it.login.Equals(info.login.Trim(), StringComparison.CurrentCultureIgnoreCase) && it.pass.Equals(info.password)))
-                    if (db.Members.Any(it => it.login.Equals(info.login.Trim(), StringComparison.CurrentCultureIgnoreCase) && Argon2.Verify(it.pass, info.password, null)))
-                    {
-                        //Members user = db.Members.First(it => it.login.Equals(info.login.Trim(), StringComparison.CurrentCultureIgnoreCase) && it.pass.Equals(info.password));
-                        Members user = db.Members.First(it => it.login.Equals(info.login.Trim(), StringComparison.CurrentCultureIgnoreCase) && Argon2.Verify(it.pass, info.password, null));
-
+                    Members user = db.Members.FirstOrDefault(it => it.login.Equals(info.login.Trim(), StringComparison.CurrentCultureIgnoreCase) && Argon2.Verify(it.pass, info.password, null));
+                    if(user != null){
                         output.auth = true;
                         output.login = user.login;
                         output.nickName = user.nick_name;
                         output.password = info.password;
 
                         user.online = true;
-                        user.last_use = SystemClock.CurrentTime; //DateTimeOffset.Now.ToUnixTimeSeconds();
+                        user.last_use = SystemClock.CurrentTime; 
                         db.SaveChanges();
                     }
                     else

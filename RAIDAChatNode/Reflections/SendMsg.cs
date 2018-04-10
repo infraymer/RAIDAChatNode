@@ -65,7 +65,7 @@ namespace RAIDAChatNode.Reflections
                             sending_date = SystemClock.CurrentTime, // DateTimeOffset.Now.ToUnixTimeSeconds(),
                             death_date =
                                 info.deathDate > 0
-                                    ? DateConvert.validateTimestamp(info.deathDate)
+                                    ? DateConvert.validateTimestamp(SystemClock.CurrentTime + info.deathDate)
                                     : DateTimeOffset.Now.AddYears(2000).ToUnixTimeSeconds(),
                             to_group = gr
                         };
