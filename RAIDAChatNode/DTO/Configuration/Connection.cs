@@ -14,17 +14,18 @@ namespace RAIDAChatNode.DTO.Configuration
         [Range(1, 65535,
             ErrorMessage = "Configurations is not load: Connection Port is not valid [Range(1-65535)]")]
         public int Port { get; set; }
-        public bool HTTPS { get; set; }
+        
+        public SSL SSL { get; set; }
 
         public Connection()
         {
             Port = 49001;
-            HTTPS = false;
+            //HTTPS = false;
         }
 
         public override string ToString()
         {
-            string https = HTTPS ? "https" : "http"; 
+            string https = SSL != null ? "https" : "http"; 
             return $"{https}://{IP}:{Port}";
         }
     }

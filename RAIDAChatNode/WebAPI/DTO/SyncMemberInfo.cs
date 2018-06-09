@@ -25,7 +25,7 @@ namespace RAIDAChatNode.WebAPI.DTO
         public bool Online { get; set; }
         
         [JsonProperty(PropertyName = "photo_fragment")]
-        public byte[] Photo { get; set; }
+        public string Photo { get; set; }
         
         [JsonProperty(PropertyName = "hash")]
         public string Hash { get; set; }

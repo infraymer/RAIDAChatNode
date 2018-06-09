@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using System;
+using Microsoft.EntityFrameworkCore;
 using RAIDAChatNode.Reflections;
 using RAIDAChatNode.Model;
 using RAIDAChatNode.Model.Entity;
@@ -23,11 +24,12 @@ namespace RAIDAChatNode.SocketService
                 AuthSocketInfo cl = mClients.First(it => it.client == client);
                 using (var db = new RaidaContext())
                 {
-                    Members user = db.Members.First(it => it.login.Equals(cl.login));
+                    Members user = db.Members.Include(m => m.MemberInGroup).First(it => it.login.Equals(cl.login));
                     user.online = false;
-                    user.last_use = SystemClock.CurrentTime; //DateTimeOffset.Now.ToUnixTimeSeconds();
+                    user.last_use = SystemClock.GetInstance().CurrentTime; 
                     db.SaveChanges();
                     //организовать отправку остальным клиентом
+                    SendMessageOfChangeUser(db, user);
                 }
 
                 mClients.Remove(cl);
@@ -79,11 +81,18 @@ namespace RAIDAChatNode.SocketService
                     if (info.auth)
                     {
                         info.client = fromClient;
-                        mClients.Add(info);
-                        outputSocket = new OutputSocketMessage(inputObject.execFun, true, "", new { info.nickName });
+                        if(!mClients.Any(it=>it.client.Equals(fromClient))){mClients.Add(info);}
+                        outputSocket = new OutputSocketMessage(inputObject.execFun, true, "", new { info.nickName, info.login, img = info.photo });
 
                         //Организовать отправку остальным пользователям о подключении клиента
 
+                        using (var db = new RaidaContext())
+                        {
+                            Members iam = db.Members.Include(m => m.MemberInGroup)
+                                .First(it => it.login.Equals(info.login));
+                            SendMessageOfChangeUser(db, iam);
+                        }
+                        
                         Console.WriteLine($"{JsonConvert.SerializeObject(outputSocket)}");
                         SendMessage(fromClient, outputSocket);
                         return;
@@ -111,8 +120,12 @@ namespace RAIDAChatNode.SocketService
 
                         if (response.msgForOwner.success)
                         {
-                            Action<AuthSocketInfo> action = delegate (AuthSocketInfo s) { SendMessage(s.client, response.msgForOther); Console.WriteLine($"sendMessage for {s.login}"); };
-                            mClients.Where(it => response.forUserLogin.Equals(it.login)).ToList().ForEach(action);
+                            Action<AuthSocketInfo> action = delegate (AuthSocketInfo s) { SendMessage(s.client, response.msgForOther); };
+                            mClients.Where(it => response.forUserLogin.Contains(it.login)).ToList().ForEach(it =>
+                            {
+                                Console.WriteLine($"SendFor {it}");
+                                action(it);
+                            });
                         }  
                     }
                     else
@@ -153,20 +166,28 @@ namespace RAIDAChatNode.SocketService
             await SendClientAsync(toClient, JsonConvert.SerializeObject(message));
         }
 
+       
 
-        //public override void OnClientInitialized(IClient client)
-        //{
+        /// <summary>
+        /// Send all users info about changed my info
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="user"></param>
+        private void SendMessageOfChangeUser(RaidaContext db, Members user)
+        {
+            var response = new
+            {
+                callFunction = "changeUserInfo",
+                data = new {itself = false, user = new UserInfo(user.login, user.nick_name, user.photo_fragment, user.online) }
+            };
+            List<string> users = DeserializeObject.GetMyReferenceUser(db, user);
 
-        //    long sec = DateTimeOffset.Now.ToUnixTimeSeconds();
-
-        //    Console.WriteLine(sec.ToString());
-        //    Console.WriteLine(DateTimeOffset.FromUnixTimeSeconds(sec).ToString("dd.MM.yyyy HH:mm:ss"));
-        //    Console.WriteLine(DateTimeOffset.FromUnixTimeSeconds(sec*100).ToString("dd.MM.yyyy HH:mm:ss"));
-        //    //base.OnClientInitialized(client);
-        //}
-        //public override void OnMessageSent(IClient toClient, string message, IClient fromClient)
-        //{
-        //    base.OnMessageSent(toClient, message, fromClient);
-        //}
+            mClients.Where(it => users.Contains(it.login)).ToList().ForEach(it =>
+            {
+                SendMessage(it.client, response);
+            });
+            
+            
+        }
     }
 }

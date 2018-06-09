@@ -36,7 +36,7 @@ namespace RAIDAChatNode.Reflections
 
             output.data = new { transactionId = transId };
             //long dateNow = DateTimeOffset.Now.ToUnixTimeSeconds();
-            long dateNow = SystemClock.CurrentTime;
+            long dateNow = SystemClock.GetInstance().CurrentTime;
 
             using (var db = new RaidaContext())
             {

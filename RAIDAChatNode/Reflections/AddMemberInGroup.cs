@@ -78,14 +78,23 @@ namespace RAIDAChatNode.Reflections
                             Transaction.saveTransaction(db, info.transactionId, Transaction.TABLE_NAME.MEMBERS_IN_GROUP, mg.Id.ToString(), owner);
 
                             db.SaveChanges();
-
-                            rez.forUserLogin.Add(user.login);
+                            
+                            output.data = new {itself = true, newUser = new UserInfo(user.login, user.nick_name, user.photo_fragment, user.online), groupId = group.group_id};
+                            
+                            var members = db.MemberInGroup.Include(ming => ming.member)
+                                .Where(it => it.groupId.Equals(group.group_id)).Select(x => x.member.login).ToList(); //Logins of all users in dialog
+                            rez.forUserLogin = members.Where(it => !it.Equals(myLogin)).ToList(); //Send all users in dialog, but not me
+                            
                             rez.msgForOther = new
                             {
                                 callFunction = "AddMemberInGroup",
-                                id = info.groupId,
-                                name = group.group_name_part,
-                                oneToOne = group.one_to_one
+                                data = new {
+                                    id = info.groupId,
+                                    name = group.group_name_part,
+                                    oneToOne = group.one_to_one,
+                                    members = members,
+                                    newUser = new UserInfo(user.login, user.nick_name, user.photo_fragment, user.online)
+                                }
                             };
                         }
                     }

@@ -1,18 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Security.Cryptography.Xml;
 using System.Text;
 using Flurl.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
-using RAIDAChatNode.DTO;
 using RAIDAChatNode.DTO.Configuration;
 using RAIDAChatNode.Model;
 using RAIDAChatNode.Model.Entity;
@@ -22,8 +15,8 @@ namespace RAIDAChatNode.Utils
 {
     public class SyncData
     {
-        private List<Members> originalMembers;
-        private List<Groups> originalGroups;
+        /*private List<Members> originalMembers;
+        private List<Groups> originalGroups;*/
         private RSAParameters privateKey, publicKey;
         
         public async void Sync()
@@ -84,7 +77,7 @@ namespace RAIDAChatNode.Utils
             object tmpObj;
             switch (typeof(T).FullName)
             {
-                case "RAIDAChatNode.Model.Entity.Members1":
+                case "RAIDAChatNode.Model.Entity.Members":
                     Members tmp = obj as Members;
                     tmpObj = new {tmp?.login, tmp?.nick_name}; 
                     break;
@@ -94,7 +87,6 @@ namespace RAIDAChatNode.Utils
                     break;
                 case "RAIDAChatNode.Model.Entity.MemberInGroup":
                     MemberInGroup tmp2 = obj as MemberInGroup;
-                    Console.WriteLine(tmp2?.member?.login);
                     tmpObj = new {tmp2?.groupId, tmp2?.member?.login};
                     break;
                 default:
@@ -126,9 +118,11 @@ namespace RAIDAChatNode.Utils
         /// </summary>
         /// <param name="inputData">List responses from trusted servers</param>
         /// <returns></returns>
-        private InputInfo IntersectData(List<InputInfo> inputData)
+        private InputInfo IntersectData(List<InputInfo> inputDataTmp)
         {
 
+            List<InputInfo> inputData = JsonConvert.DeserializeObject<List<InputInfo>>(JsonConvert.SerializeObject(inputDataTmp));
+            
             InputInfo correctData = new InputInfo();
             if (inputData.Count > 0)
             {   

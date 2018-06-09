@@ -15,7 +15,7 @@ namespace RAIDAChatNode.Utils
         {
             long DiffRoll = MainConfig.TransactionRollback; //How long seconds rollback access 
             
-            Int64 rollback = SystemClock.CurrentTime + DiffRoll;
+            Int64 rollback = SystemClock.GetInstance().CurrentTime + DiffRoll;
             
             Transactions newTransaction = new Transactions {
                 transactionId = transactionId,
@@ -30,7 +30,7 @@ namespace RAIDAChatNode.Utils
         public static void rollbackTransaction(Guid transactionId, Members owner)
         {
             //long dateNow = DateTimeOffset.Now.ToUnixTimeSeconds();
-            long dateNow = SystemClock.CurrentTime;
+            long dateNow = SystemClock.GetInstance().CurrentTime;
             
             using (var db = new RaidaContext())
             {

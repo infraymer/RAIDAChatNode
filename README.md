@@ -61,7 +61,9 @@ For transmission from the server on the _client_ to use such template:
 
 >```
 >"data": {
->     "nickName": "String"
+>     "nickName": "String",
+>     "login": "String",
+>     "img": "String"
 >}
 **_Possible response errors:_**
 
@@ -87,8 +89,9 @@ For transmission from the server on the _client_ to use such template:
 **_Return from Chat service:_**
 >```
 >"data": {
->    "id": "GUID",
->    "name": "String" 
+>     "id": "GUID",
+>     "name": "String",
+>     "oneToOne": "Boolean" 
 >}
 **_Possible response errors:_**
 
@@ -112,14 +115,32 @@ For transmission from the server on the _client_ to use such template:
 **_Return from Chat service:_**
 >```
 >For owner:
->"data": { }
+>"data": { 
+>    "itself": "Boolean", (constant - true)
+>    "newUser": {
+>      "login": "String",
+>      "nickName": "String",
+>      "photo": "String",
+>      "online": "Boolean",
+>    },
+>    "groupId": "GUID"
+>}
 >
 >For other users:
+>"callFunction": "AddMemberInGroup",
 >"data": {
->    "callFunction": "AddMemberInGroup",
 >    "id": "GUID",
 >    "name": "String", 
 >    "oneToOne": "Boolean",
+>    "members": [
+>      "login": "String"
+>    ],
+>    "newUser": {
+>      "login": "String",
+>      "nickName": "String",
+>      "photo": "String",
+>      "online": "Boolean",
+>    }
 >}
 **_Possible response errors:_**
 
@@ -182,13 +203,19 @@ For transmission from the server on the _client_ to use such template:
 >"data": {
 >    "dialogId": "GUID",
 >    "groupName": "String",
+>    "oneToOne": "Boolean",
+>    "priavated": "Boolean",
+>    "members": [
+>       "login": "String"
+>    ],
 >    "messages":[{
 >       "guidMsg": "GUID",
 >       "textMsg": "String",
 >       "curFrg": "Integer",
 >       "totalFrg": "Integer",
 >       "sendTime": "Long",
->       "senderName": "String"
+>       "senderName": "String",
+>       "senderLogin": "String",
 >     }]
 >}
 **_Possible response errors:_**
@@ -196,13 +223,25 @@ For transmission from the server on the _client_ to use such template:
 1. Dialog is not found
 
 ---
-**_Description:_** Request for obtaining all messages from the server.\
+**_Description:_** Request for getting messages from the server.\
 **_Request to Chat service:_**
 
 >```JSON
 >{
->  "execFun": "GetMsg",
->  "data": { }
+>  "execFun": "getDialogs",
+>  "data": {
+>    "msgCount": "Integer"
+>  }
+>}
+OR
+>```JSON
+>{
+>  "execFun": "getMsg",
+>  "data": {
+>    "dialogId": "GUID",
+>    "msgCount": "Integer",
+>    "offset": "Integer"
+>  }
 >}
 
 **_Return from Chat service:_**
@@ -211,6 +250,11 @@ For transmission from the server on the _client_ to use such template:
 >   {
 >    "dialogId": "GUID",
 >    "groupName": "String",
+>    "oneToOne": "Boolean",
+>    "priavated": "Boolean",
+>    "members": [
+>       "login": "String"
+>    ],
 >    "messages":[{
 >       "guidMsg": "GUID",
 >       "textMsg": "String",
@@ -218,10 +262,57 @@ For transmission from the server on the _client_ to use such template:
 >       "totalFrg": "Integer",
 >       "sendTime": "Long",
 >       "senderName": "String"
+>       "senderLogin": "String"
 >    }]
 >   },
 >   {dialogId ...}
 >]
+
+---
+**_Description:_** Get information about login user. \
+**_Request to Chat service:_**
+
+>```JSON
+>{
+>  "execFun": "GetUserInfo",
+>  "data": { }
+>}
+**_Return from Chat service:_**
+>```
+>"data": { 
+>   "login": "String",
+>   "nickName": "String",
+>   "photo": "String",
+>   "online": "Boolean"
+>}
+
+---
+**_Description:_** Change information about user. \
+**_Request to Chat service:_**
+
+>```JSON
+>{
+>  "execFun": "ChangeUserInfo",
+>  "data": {
+>    "name":"String",
+>    "photo":"String",
+>    "about":"String",
+>    "changePass":"Boolean",
+>    "oldPass":"String",
+>    "newPass":"String"
+>  }
+>}
+**_Return from Chat service:_**
+>```
+>"data": { 
+>   "itself": "Boolean",
+>   "user": {
+>     "login": "String",
+>     "nickName": "String",
+>     "photo": "String",
+>     "online": "Boolean"
+>   }
+>}
 
 ---
 **_Description:_** Отменить изменение в базе. Данное действие возможно в течении 60 секунд, потом транзакция блокируется. Пока не работает\

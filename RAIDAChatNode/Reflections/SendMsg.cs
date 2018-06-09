@@ -52,7 +52,7 @@ namespace RAIDAChatNode.Reflections
                     if (!db.Shares.Any(it => it.id == info.msgId)) //Check exist message with Id
                     {
                         Groups gr = db.Groups.Include(s => s.Shares).First(it => it.group_id == info.dialogId);
-
+                        Console.WriteLine(SystemClock.GetInstance().CurrentTime.ToString());
                         Shares msg = new Shares
                         {
                             id = info.msgId,
@@ -62,10 +62,10 @@ namespace RAIDAChatNode.Reflections
                             file_data = Encoding.Unicode.GetBytes(info.textMsg),
                             file_extention = "none",
                             kb_size = 0,
-                            sending_date = SystemClock.CurrentTime, // DateTimeOffset.Now.ToUnixTimeSeconds(),
+                            sending_date = SystemClock.GetInstance().CurrentTime, // DateTimeOffset.Now.ToUnixTimeSeconds(),
                             death_date =
                                 info.deathDate > 0
-                                    ? DateConvert.validateTimestamp(SystemClock.CurrentTime + info.deathDate)
+                                    ? DateConvert.validateTimestamp(SystemClock.GetInstance().CurrentTime + info.deathDate)
                                     : DateTimeOffset.Now.AddYears(2000).ToUnixTimeSeconds(),
                             to_group = gr
                         };
@@ -91,18 +91,13 @@ namespace RAIDAChatNode.Reflections
                         }
 
                         OneMessageInfo newMsg = new OneMessageInfo(msg.id, info.textMsg, msg.current_fragment,
-                            msg.total_fragment, msg.sending_date, owner.nick_name);
+                            msg.total_fragment, msg.sending_date, owner.nick_name, msg.owner.login);
 
-                        output.data = new OutGetMsgInfo(gr.group_id, groupNameForOwner, gr.one_to_one,
+                        output.data = new OutGetMsgInfo(gr.group_id, groupNameForOwner, gr.one_to_one, gr.privated,
                             new List<OneMessageInfo>() {newMsg});
-                        outputOther.data = new
-                        {
-                            callFunction = "sendMsg",
-                            data = new OutGetMsgInfo(gr.group_id, groupNameForOther, gr.one_to_one,
-                                new List<OneMessageInfo>() {newMsg})
-                        };
-
-
+                        outputOther.data = new OutGetMsgInfo(gr.group_id, groupNameForOther, gr.one_to_one, gr.privated,
+                            new List<OneMessageInfo>() {newMsg});
+                        
                         Transaction.removeMessageAboveLimit(gr);
                     }
                     else

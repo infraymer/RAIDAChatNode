@@ -1,8 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
+using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.WindowsAzure.Storage.Blob.Protocol;
 using RAIDAChatNode.DTO;
 using Newtonsoft.Json;
+using RAIDAChatNode.Model;
+using RAIDAChatNode.Model.Entity;
 
 namespace RAIDAChatNode.Utils
 {
@@ -36,6 +43,23 @@ namespace RAIDAChatNode.Utils
             var validCOntext = new ValidationContext(model, null, null);
             Validator.ValidateObject(model, validCOntext, true);
         }
-        
+       
+        /// <summary>
+        /// Get all users in dialog with me
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="user"></param>
+        /// <returns>List of user logins</returns>
+        public static List<string> GetMyReferenceUser(RaidaContext db, Members user)
+        {
+            List<string> users = new List<string>();
+            user.MemberInGroup.ToList().ForEach(it =>
+            {
+                db.MemberInGroup.Include(m => m.member).Where(mig => mig.groupId.Equals(it.groupId))
+                    .ForEachAsync(mem => users.Add(mem.member.login));
+            });
+            users = users.Distinct().Where(it => !it.Equals(user.login)).ToList();
+            return users;
+        }
     }
 }

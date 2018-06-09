@@ -41,8 +41,9 @@ namespace RAIDAChatNode.Reflections
 
                 // ReSharper disable once SuggestVarOrType_Elsewhere
                 List<OutGetMsgInfo> list = new List<OutGetMsgInfo>();
+                //I'am consist in this dialogs
                 List<MemberInGroup> mg = db.MemberInGroup.Include(g => g.group)
-                    .ThenInclude(s => s.Shares)
+                    .ThenInclude(s => s.Shares).ThenInclude(own => own.owner)
                     .Where(it => it.member.login.Equals(myLogin))
                     .ToList();
 
@@ -52,11 +53,17 @@ namespace RAIDAChatNode.Reflections
                     {
                         groupName = db.MemberInGroup.Include(m => m.member).FirstOrDefault(mig => mig.group == it.group && mig.member != owner)?.member.nick_name;
                     }
-                    OutGetMsgInfo group = new OutGetMsgInfo(it.group.group_id, groupName, it.group.one_to_one);
+                    OutGetMsgInfo group = new OutGetMsgInfo(it.group.group_id, groupName, it.group.one_to_one, it.group.privated);
+                    //Add all message in dialog
                     it.group.Shares.OrderBy(s => s.sending_date)
                         .Take(info.msgCount)
                         .ToList()
-                        .ForEach(msg => group.messages.Add(new OneMessageInfo(msg.id, Encoding.Unicode.GetString(msg.file_data), msg.current_fragment, msg.total_fragment, msg.sending_date, msg.owner.nick_name)));
+                        .ForEach(msg => group.messages.Add(new OneMessageInfo(msg.id, Encoding.Unicode.GetString(msg.file_data), msg.current_fragment, msg.total_fragment, msg.sending_date, msg.owner.nick_name, msg.owner.login)));
+
+                    //Add users where consist in dialog 
+                    db.MemberInGroup.Include(m => m.member).Where(mig => mig.groupId.Equals(it.groupId))
+                        .ForEachAsync(memb => group.members.Add(memb.member.login));
+                    
                     list.Add(group);
                 });
 

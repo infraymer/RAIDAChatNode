@@ -50,13 +50,13 @@ namespace RAIDAChatNode.Reflections
                     {
                         groupName = db.MemberInGroup.Include(m => m.member).FirstOrDefault(mig => mig.group == mg.group && mig.member != owner)?.member.nick_name;
                     }
-                    OutGetMsgInfo groupMsg = new OutGetMsgInfo(mg.group.group_id, groupName, mg.group.one_to_one);
-                    mg.group.Shares.Where(it => it.death_date > SystemClock.CurrentTime)
+                    OutGetMsgInfo groupMsg = new OutGetMsgInfo(mg.group.group_id, groupName, mg.group.one_to_one, mg.group.privated);
+                    mg.group.Shares.Where(it => it.death_date > SystemClock.GetInstance().CurrentTime)
                         .OrderBy(s => s.sending_date)
                         .Skip(info.offset)
                         .Take(info.msgCount)
                         .ToList()
-                        .ForEach(msg => groupMsg.messages.Add(new OneMessageInfo(msg.id, Encoding.Unicode.GetString(msg.file_data), msg.current_fragment, msg.total_fragment, msg.sending_date, msg.owner.nick_name)));
+                        .ForEach(msg => groupMsg.messages.Add(new OneMessageInfo(msg.id, Encoding.Unicode.GetString(msg.file_data), msg.current_fragment, msg.total_fragment, msg.sending_date, msg.owner.nick_name, msg.owner.login )));
 
                     output.data = groupMsg;
                 }

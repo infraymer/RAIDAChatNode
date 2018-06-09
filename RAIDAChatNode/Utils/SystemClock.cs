@@ -13,10 +13,17 @@ namespace RAIDAChatNode.Utils
 {
     public class SystemClock
     {
+        private static readonly SystemClock instance = new SystemClock();
+
+        public static SystemClock GetInstance()
+        {
+            return instance;
+        }
+        
         /// <summary>
         /// Count of seconds with 01.01.1970
         /// </summary>
-        public static long CurrentTime { get; private set; }
+        public long CurrentTime { get; private set; }
 
         private int offset = 0,
             timeCleanUp = 0;

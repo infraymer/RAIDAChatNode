@@ -10,6 +10,7 @@ namespace RAIDAChatNode.DTO
     {
         public String login { get; set; }
         public String password { get; set; }
+        public string photo { get; set; }
     }
 
     public class AuthSocketInfo : AuthInfo

@@ -43,9 +43,10 @@ namespace RAIDAChatNode.Reflections
                         output.login = user.login;
                         output.nickName = user.nick_name;
                         output.password = info.password;
-
+                        output.photo = user.photo_fragment;
+                        
                         user.online = true;
-                        user.last_use = SystemClock.CurrentTime; 
+                        user.last_use = SystemClock.GetInstance().CurrentTime; 
                         db.SaveChanges();
                     }
                     else

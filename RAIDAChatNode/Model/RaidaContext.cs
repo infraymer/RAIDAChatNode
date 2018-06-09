@@ -62,7 +62,8 @@ namespace RAIDAChatNode.Model
 
 
             modelBuilder.Entity<MemberInGroup>()
-                            .HasIndex(mg=> new { mg.memberId, mg.groupId }).IsUnique(true);
+                .HasKey(mg => new {mg.memberId, mg.groupId});
+                            /*.HasIndex(mg=> new { mg.memberId, mg.groupId }).IsUnique(true);*/
 
 
             modelBuilder.Entity<MemberInGroup>()

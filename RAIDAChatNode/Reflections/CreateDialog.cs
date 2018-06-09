@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using RAIDAChatNode.DTO;
 using RAIDAChatNode.Utils;
 using RAIDAChatNode.Model;
@@ -58,7 +59,7 @@ namespace RAIDAChatNode.Reflections
                     privated = false
                 };
 
-                int newId = 0;
+                int newId = 1;
                 if ( db.MemberInGroup.Count() > 0 ){
                     newId = db.MemberInGroup.OrderByDescending(it => it.Id).FirstOrDefault().Id + 1;
                 }
@@ -85,7 +86,7 @@ namespace RAIDAChatNode.Reflections
                             Transaction.saveTransaction(db, info.transactionId, Transaction.TABLE_NAME.MEMBERS_IN_GROUP, mg1.Id.ToString(), owner);
 
                             newId++;
-                            //rez.usersId.Add(info.login); Придумать ответ пользователю, которого добавили
+                            //rez.usersId.Add(info.login); Придумать ответ пользователю, которого добавили - а может он и не нужен
                         }
                         else
                         {
@@ -103,9 +104,7 @@ namespace RAIDAChatNode.Reflections
                         return rez;
                     }
                 }
-                
                 db.Groups.Add(group);
-
                 MemberInGroup OwnerInMg = new MemberInGroup
                 {
                     Id = newId,
@@ -113,9 +112,6 @@ namespace RAIDAChatNode.Reflections
                     member = owner
                 };
                 db.MemberInGroup.Add(OwnerInMg);           
-
-                Transaction.saveTransaction(db, info.transactionId, Transaction.TABLE_NAME.GROUPS, info.publicId.ToString(), owner);
-                Transaction.saveTransaction(db, info.transactionId, Transaction.TABLE_NAME.MEMBERS_IN_GROUP, OwnerInMg.Id.ToString(), owner);
                 try {
                     db.SaveChanges();
                 }
@@ -123,9 +119,11 @@ namespace RAIDAChatNode.Reflections
                 {
                     Console.WriteLine(e.Message);
                 }
+                Transaction.saveTransaction(db, info.transactionId, Transaction.TABLE_NAME.GROUPS, info.publicId.ToString(), owner);
+                Transaction.saveTransaction(db, info.transactionId, Transaction.TABLE_NAME.MEMBERS_IN_GROUP, OwnerInMg.Id.ToString(), owner);
                 
             }
-            output.data = new { id = info.publicId, info.name };
+            output.data = new { id = info.publicId, info.name, info.oneToOne };
             rez.msgForOwner = output;
             return rez;
         }
