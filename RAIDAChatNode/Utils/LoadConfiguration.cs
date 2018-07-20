@@ -41,7 +41,8 @@ namespace RAIDAChatNode.Utils
 
         private static void CheckDB()
         {
-            if (!MainConfig.DB.NameDB.Equals(SupportedDB.SQLite, StringComparison.OrdinalIgnoreCase))
+            if ((!MainConfig.DB.NameDB.Equals(SupportedDB.SQLite, StringComparison.OrdinalIgnoreCase)) 
+                && (!(MainConfig.DB.ConnectionString.ToLower().Contains("password") && MainConfig.DB.ConnectionString.ToLower().Contains("user"))) )
             {
                 Console.WriteLine("Database authenticatoin:");
                 Console.Write("User name: ");
@@ -66,16 +67,17 @@ namespace RAIDAChatNode.Utils
                         break;
                 }
 
-                MainConfig.DB.ConnectionString = tmp;
-
-                try
-                {
-                    using (new RaidaContext()){}
-                }
-                catch (Exception e)
-                {
-                    CloseApp($"Database connection is fail.\r\nError: {e.Message}");
-                }
+                MainConfig.DB.ConnectionString = tmp;   
+            }
+            
+            try
+            {
+                using (new RaidaContext()){}
+                Console.WriteLine("DataBase connection successful");
+            }
+            catch (Exception e)
+            {
+                CloseApp($"Database connection is fail.\r\nError: {e.Message}");
             }
         }
         

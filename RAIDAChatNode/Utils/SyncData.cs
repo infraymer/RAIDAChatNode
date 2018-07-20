@@ -53,7 +53,8 @@ namespace RAIDAChatNode.Utils
                 catch (Exception ex)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine(ex.Message);
+                    //Console.WriteLine(ex.Message);
+                    Console.WriteLine("Error of synchronize data from trust server");
                     Console.ResetColor();
                     Console.ReadLine();
                 }

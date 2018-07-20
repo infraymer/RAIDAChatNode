@@ -19,9 +19,19 @@ namespace RAIDAChatNode.Extensions
         {
             if (MainConfig.Connection.SSL != null)
             {
+                try
+                {
+                    DeserializeObject.IsValid(MainConfig.Connection.SSL);
+                }
+                catch (Exception ex)
+                {
+                    LoadConfiguration.CloseApp(ex.Message);
+                
+                }
+                
                 var environment = options.ApplicationServices.GetRequiredService<IHostingEnvironment>();
                 
-                options.Listen(IPAddress.Parse(MainConfig.Connection.IP), MainConfig.Connection.Port,
+                options.Listen(IPAddress.Parse(MainConfig.Connection.SSL.IP), MainConfig.Connection.Port,
                     listenOptions =>
                     {
                         var certificate = LoadCertificate(environment);
