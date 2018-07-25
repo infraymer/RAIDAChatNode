@@ -13,7 +13,7 @@ namespace RAIDAChatNode.Reflections
 {
     public class GetMsg : IReflectionActions
     {
-        public OutputSocketMessageWithUsers Execute(object val, string myLogin)
+        public OutputSocketMessageWithUsers Execute(object val, string myLogin, Guid actId)
         {
 
             #region Тестовые данные
@@ -28,7 +28,7 @@ namespace RAIDAChatNode.Reflections
             */
             #endregion
 
-            OutputSocketMessage output = new OutputSocketMessage("getMsg", true, "", new { });
+            OutputSocketMessage output = new OutputSocketMessage("getMsg", actId, true, "", new { });
             OutputSocketMessageWithUsers rez = new OutputSocketMessageWithUsers();
 
             GetMsgInfo info = DeserializeObject.ParseJSON<GetMsgInfo>(val, output, out rez);

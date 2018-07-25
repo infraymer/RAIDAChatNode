@@ -12,7 +12,7 @@ namespace RAIDAChatNode.Reflections
 {
     public class AddMemberInGroup : IReflectionActions
     {
-        public OutputSocketMessageWithUsers Execute(object val, string myLogin)
+        public OutputSocketMessageWithUsers Execute(object val, string myLogin, Guid actId)
         {
             #region Тестовые данные
             /*
@@ -27,7 +27,7 @@ namespace RAIDAChatNode.Reflections
                             */
             #endregion
 
-            OutputSocketMessage output = new OutputSocketMessage("addMemberInGroup", true, "", new { });
+            OutputSocketMessage output = new OutputSocketMessage("addMemberInGroup", actId, true, "", new { });
             OutputSocketMessageWithUsers rez = new OutputSocketMessageWithUsers();
 
             AddMemberInGroupInfo info = DeserializeObject.ParseJSON<AddMemberInGroupInfo>(val, output, out rez);

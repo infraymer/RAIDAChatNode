@@ -11,7 +11,7 @@ namespace RAIDAChatNode.Reflections
 {
     public class RollbackTransaction : IReflectionActions
     {
-        public OutputSocketMessageWithUsers Execute(object val, string myLogin)
+        public OutputSocketMessageWithUsers Execute(object val, string myLogin, Guid actId)
         {
             #region Тестовые данные
             /*
@@ -24,7 +24,7 @@ namespace RAIDAChatNode.Reflections
             */
             #endregion
 
-            OutputSocketMessage output = new OutputSocketMessage("rollbackTransaction", true, "", new { });
+            OutputSocketMessage output = new OutputSocketMessage("rollbackTransaction", actId, true, "", new { });
             OutputSocketMessageWithUsers rez = new OutputSocketMessageWithUsers();
 
             TransactionInfo info = DeserializeObject.ParseJSON<TransactionInfo>(val, output, out rez);

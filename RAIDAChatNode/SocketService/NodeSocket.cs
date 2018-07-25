@@ -55,6 +55,7 @@ namespace RAIDAChatNode.SocketService
             catch
             {
                 OutputSocketMessage outputSocket = new OutputSocketMessage("DeserializeObject error:",
+                                                                            Guid.Empty, 
                                                                             false,
                                                                             $"Input message: '{message}' is not valid",
                                                                             new { });
@@ -82,7 +83,7 @@ namespace RAIDAChatNode.SocketService
                     {
                         info.client = fromClient;
                         if(!mClients.Any(it=>it.client.Equals(fromClient))){mClients.Add(info);}
-                        outputSocket = new OutputSocketMessage(inputObject.execFun, true, "", new { info.nickName, info.login, img = info.photo });
+                        outputSocket = new OutputSocketMessage(inputObject.execFun, inputObject.actId, true, "", new { info.nickName, info.login, img = info.photo });
 
                         //Организовать отправку остальным пользователям о подключении клиента
 
@@ -101,6 +102,7 @@ namespace RAIDAChatNode.SocketService
                     {
                         Console.WriteLine("Invalid login or password");
                         outputSocket = new OutputSocketMessage(inputObject.execFun,
+                                                                Guid.Empty, 
                                                                 false,
                                                                 "Invalid login or password",
                                                                 new { } );
@@ -113,7 +115,7 @@ namespace RAIDAChatNode.SocketService
                     {
                         IReflectionActions execClass = (IReflectionActions)Activator.CreateInstance(findClass);
                         AuthSocketInfo currentUser = mClients.FirstOrDefault(it => it.client == fromClient);
-                        OutputSocketMessageWithUsers response = execClass.Execute(inputObject.data, currentUser?.login);
+                        OutputSocketMessageWithUsers response = execClass.Execute(inputObject.data, currentUser?.login, inputObject.actId);
 
                         Console.WriteLine($"{JsonConvert.SerializeObject(response.msgForOwner)}");
                         SendMessage(fromClient, response.msgForOwner);
@@ -133,6 +135,7 @@ namespace RAIDAChatNode.SocketService
                         Console.WriteLine("You are not authorized. To continue working you need to login.");
 
                         outputSocket = new OutputSocketMessage(inputObject.execFun,
+                                                                Guid.Empty, 
                                                                 false,
                                                                 "You are not authorized. To continue working you need to login.",
                                                                 new { } );
@@ -146,6 +149,7 @@ namespace RAIDAChatNode.SocketService
                 Console.WriteLine($"Function: '{inputObject.execFun}' not found");
 
                 outputSocket = new OutputSocketMessage(inputObject.execFun,
+                                    Guid.Empty, 
                                     false,
                                     $"Function: '{inputObject.execFun}' not found", 
                                     new { }

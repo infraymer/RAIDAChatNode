@@ -12,7 +12,7 @@ namespace RAIDAChatNode.Reflections
 {
     public class OrganizationCreate : IReflectionActions
     {
-        public OutputSocketMessageWithUsers Execute(object val, string myLogin)
+        public OutputSocketMessageWithUsers Execute(object val, string myLogin, Guid actId)
         {
 
             #region Тестовые данные
@@ -28,7 +28,7 @@ namespace RAIDAChatNode.Reflections
                         */
             #endregion
 
-            OutputSocketMessage output = new OutputSocketMessage("OrganizationCreate", true, "", new { });
+            OutputSocketMessage output = new OutputSocketMessage("OrganizationCreate", actId, true, "", new { });
             OutputSocketMessageWithUsers rez = new OutputSocketMessageWithUsers();
 
             OrganizationCreateInfo info = DeserializeObject.ParseJSON<OrganizationCreateInfo>(val, output, out rez);

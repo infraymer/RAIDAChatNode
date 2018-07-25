@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Internal;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -69,20 +70,39 @@ namespace RAIDAChatNode.Utils
 
                 MainConfig.DB.ConnectionString = tmp;   
             }
-            
-            try
+
+            int i = 1;
+            while (i <= MainConfig.DB.CntConnect)
             {
-                using (new RaidaContext()){}
-                Console.WriteLine("DataBase connection successful");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine($"Connection to DataBase... {i}/{MainConfig.DB.CntConnect}");
+                try
+                {
+                    using (new RaidaContext()){
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.WriteLine("DataBase connection successful");
+                        break;
+                    }
+                    
+                }
+                catch (Exception e)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"Database connection is fail ({i}/{MainConfig.DB.CntConnect}).\r\nError: {e.Message}");
+                }
+                i++;
+                Thread.Sleep(1000);
             }
-            catch (Exception e)
+
+            if (i > MainConfig.DB.CntConnect)
             {
-                CloseApp($"Database connection is fail.\r\nError: {e.Message}");
+                CloseApp($"Database connection is fail");   
             }
         }
         
         private static string ReadLineHidden() {
             var sb = new StringBuilder();
+            Console.ReadKey(true); //Without it always reading Enter
             while (true) {
                 var pwd = Console.ReadKey(true);
                 if (pwd.Key == ConsoleKey.Enter) {

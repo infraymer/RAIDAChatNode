@@ -65,6 +65,7 @@ namespace RAIDAChatNode.DTO.Configuration
             CleanUpTimer = 3600;
             SyncWorldTime = 86400;
             TrustedServers = new List<string>();
+            DB = new DataBase();
         }
     }
     

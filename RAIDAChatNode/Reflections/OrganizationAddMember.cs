@@ -12,7 +12,7 @@ namespace RAIDAChatNode.Reflections
 {
     public class OrganizationAddMember : IReflectionActions
     {
-        public OutputSocketMessageWithUsers Execute(object val, string myLogin)
+        public OutputSocketMessageWithUsers Execute(object val, string myLogin, Guid actId)
         {
 
             #region Тестовые данные
@@ -28,7 +28,7 @@ namespace RAIDAChatNode.Reflections
             */
             #endregion
 
-            OutputSocketMessage output = new OutputSocketMessage("OrganizationAddMember", true, "", new { });
+            OutputSocketMessage output = new OutputSocketMessage("OrganizationAddMember", actId, true, "", new { });
             OutputSocketMessageWithUsers rez = new OutputSocketMessageWithUsers();
 
             using (var db = new RaidaContext())
@@ -37,7 +37,7 @@ namespace RAIDAChatNode.Reflections
                 if(owner.organization != null && owner.organization.owner == owner)
                 {
                     Registration registration = new Registration();
-                    rez = registration.Execute(val, myLogin);
+                    rez = registration.Execute(val, myLogin, actId);
                     rez.msgForOwner.callFunction = "OrganizationAddMember";
                     if (rez.msgForOwner.success)
                     {

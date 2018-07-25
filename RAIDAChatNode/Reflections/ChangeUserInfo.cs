@@ -13,7 +13,7 @@ namespace RAIDAChatNode.Reflections
 {
     public class ChangeUserInfo : IReflectionActions
     {
-        public OutputSocketMessageWithUsers Execute(object val, string myLogin)
+        public OutputSocketMessageWithUsers Execute(object val, string myLogin, Guid actId)
         {
               #region Тестовые данные
             /* { 
@@ -30,8 +30,8 @@ namespace RAIDAChatNode.Reflections
             */
             #endregion
 
-            OutputSocketMessage output = new OutputSocketMessage("changeUserInfo", true, "", new { });
-            OutputSocketMessage outputForOther = new OutputSocketMessage("changeUserInfo", true, "", new { });
+            OutputSocketMessage output = new OutputSocketMessage("changeUserInfo", actId, true, "", new { });
+            OutputSocketMessage outputForOther = new OutputSocketMessage("changeUserInfo", Guid.Empty, true, "", new { });
             OutputSocketMessageWithUsers rez = new OutputSocketMessageWithUsers();
 
             DTO.ChangeUserInfo info = DeserializeObject.ParseJSON<DTO.ChangeUserInfo>(val, output, out rez);

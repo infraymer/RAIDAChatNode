@@ -12,7 +12,7 @@ namespace RAIDAChatNode.Reflections
 {
     public class GetUsersInfo : IReflectionActions
     {
-        public OutputSocketMessageWithUsers Execute(object val, string myLogin)
+        public OutputSocketMessageWithUsers Execute(object val, string myLogin, Guid actId)
         {
             #region Тестовые данные
             /* { 
@@ -22,7 +22,7 @@ namespace RAIDAChatNode.Reflections
             */
             #endregion
 
-            OutputSocketMessage output = new OutputSocketMessage("getUsersInfo", true, "", new { });
+            OutputSocketMessage output = new OutputSocketMessage("getUsersInfo", actId, true, "", new { });
             OutputSocketMessageWithUsers rez = new OutputSocketMessageWithUsers();
 
             using (var db = new RaidaContext())

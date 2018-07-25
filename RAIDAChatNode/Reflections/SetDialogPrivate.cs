@@ -12,7 +12,7 @@ namespace RAIDAChatNode.Reflections
 {
     public class SetDialogPrivate : IReflectionActions
     {
-        public OutputSocketMessageWithUsers Execute(object val, string myLogin)
+        public OutputSocketMessageWithUsers Execute(object val, string myLogin, Guid actId)
         {
             #region Тестовые данные
             /*
@@ -26,7 +26,7 @@ namespace RAIDAChatNode.Reflections
             */
             #endregion
 
-            OutputSocketMessage output = new OutputSocketMessage("SetDialogPrivate", true, "", new { });
+            OutputSocketMessage output = new OutputSocketMessage("SetDialogPrivate", actId, true, "", new { });
             OutputSocketMessageWithUsers rez = new OutputSocketMessageWithUsers();
 
             SetDialogPrivateInfo info = DeserializeObject.ParseJSON<SetDialogPrivateInfo>(val, output, out rez);

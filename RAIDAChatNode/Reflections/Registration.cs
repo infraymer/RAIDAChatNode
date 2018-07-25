@@ -24,9 +24,9 @@ namespace RAIDAChatNode.Reflections
             }
         */
 
-        public OutputSocketMessageWithUsers Execute(object val, string myLogin)
+        public OutputSocketMessageWithUsers Execute(object val, string myLogin, Guid actId)
         {
-            OutputSocketMessage output = new OutputSocketMessage("registration", true, "", new { });
+            OutputSocketMessage output = new OutputSocketMessage("registration", actId, true, "", new { });
             OutputSocketMessageWithUsers rez = new OutputSocketMessageWithUsers();
 
 
